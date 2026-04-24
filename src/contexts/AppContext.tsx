@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { translations, Lang } from "@/data/translations";
 
+type T = (typeof translations)[Lang];
+
 export type Order = {
   id: string;
   name: string;
@@ -17,7 +19,7 @@ type Theme = "light" | "dark";
 type Ctx = {
   lang: Lang;
   setLang: (l: Lang) => void;
-  t: typeof translations.fr;
+  t: T;
   theme: Theme;
   toggleTheme: () => void;
   orders: Order[];
