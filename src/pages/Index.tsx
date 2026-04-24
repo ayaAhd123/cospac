@@ -1,16 +1,31 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { Navbar } from "@/components/Navbar";
+import { Hero } from "@/components/sections/Hero";
+import { VideoSection } from "@/components/sections/VideoSection";
+import { Products } from "@/components/sections/Products";
+import { Benefits } from "@/components/sections/Benefits";
+import { BeforeAfter } from "@/components/sections/BeforeAfter";
+import { Testimonials } from "@/components/sections/Testimonials";
+import { Offer } from "@/components/sections/Offer";
+import { OrderForm } from "@/components/OrderForm";
+import { FloatingButtons } from "@/components/FloatingButtons";
+import { Footer } from "@/components/Footer";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
-  return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
-    </div>
-  );
-};
-
-const Index = PlaceholderIndex;
+const Index = () => (
+  <div className="min-h-screen bg-background">
+    <Navbar />
+    <main>
+      <Hero />
+      <VideoSection />
+      <Products />
+      <Benefits />
+      <BeforeAfter />
+      <Testimonials />
+      <Offer />
+    </main>
+    <Footer />
+    <FloatingButtons />
+    <OrderForm />
+  </div>
+);
 
 export default Index;
