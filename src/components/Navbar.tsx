@@ -18,7 +18,7 @@ export const Navbar = () => {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <div className="w-9 h-9 rounded-xl bg-gradient-hero flex items-center justify-center text-primary-foreground font-black text-sm">C</div>
-          <span className="font-bold text-lg tracking-tight">COSPAC<span className="text-primary"> Beauty</span></span>
+          <span className="font-display font-bold text-xl tracking-tight">COSPAC<span className="text-primary"> Beauty</span></span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-8">

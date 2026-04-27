@@ -2,6 +2,15 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { translations, Lang } from "@/data/translations";
 
 type T = (typeof translations)[Lang];
+type Theme = "light" | "dark";
+
+const LANG_STORAGE_KEY = "cospac-lang";
+const THEME_STORAGE_KEY = "cospac-theme";
+const DEFAULT_LANG: Lang = "ar";
+const DEFAULT_THEME: Theme = "light";
+
+const isLang = (value: string | null): value is Lang => value === "fr" || value === "ar";
+const isTheme = (value: string | null): value is Theme => value === "light" || value === "dark";
 
 export type Order = {
   id: string;
@@ -13,8 +22,6 @@ export type Order = {
   status: "pending" | "confirmed" | "delivered";
   createdAt: string;
 };
-
-type Theme = "light" | "dark";
 
 type Ctx = {
   lang: Lang;
@@ -34,8 +41,14 @@ type Ctx = {
 const AppCtx = createContext<Ctx | null>(null);
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
-  const [lang, setLangState] = useState<Lang>(() => (localStorage.getItem("lang") as Lang) || "fr");
-  const [theme, setTheme] = useState<Theme>(() => (localStorage.getItem("theme") as Theme) || "light");
+  const [lang, setLangState] = useState<Lang>(() => {
+    const storedLang = localStorage.getItem(LANG_STORAGE_KEY);
+    return isLang(storedLang) ? storedLang : DEFAULT_LANG;
+  });
+  const [theme, setTheme] = useState<Theme>(() => {
+    const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+    return isTheme(storedTheme) ? storedTheme : DEFAULT_THEME;
+  });
   const [orders, setOrders] = useState<Order[]>(() => {
     try { return JSON.parse(localStorage.getItem("orders") || "[]"); } catch { return []; }
   });
@@ -45,12 +58,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
-    localStorage.setItem("lang", lang);
+    localStorage.setItem(LANG_STORAGE_KEY, lang);
   }, [lang]);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
-    localStorage.setItem("theme", theme);
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
   }, [theme]);
 
   useEffect(() => { localStorage.setItem("orders", JSON.stringify(orders)); }, [orders]);
@@ -63,10 +76,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   };
   const updateStatus = (id: string, s: Order["status"]) =>
     setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status: s } : o)));
+  const t = translations[lang] ?? translations[DEFAULT_LANG];
 
   return (
     <AppCtx.Provider value={{
-      lang, setLang: setLangState, t: translations[lang],
+      lang, setLang: setLangState, t,
       theme, toggleTheme: () => setTheme(theme === "light" ? "dark" : "light"),
       orders, addOrder, updateStatus,
       selectedProduct, setSelectedProduct, orderOpen, setOrderOpen,

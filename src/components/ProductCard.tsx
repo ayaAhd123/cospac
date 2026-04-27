@@ -20,7 +20,7 @@ export const ProductCard = ({ item }: { item: Item }) => {
           <div className="text-primary font-black text-xl whitespace-nowrap">{item.price} <span className="text-xs font-medium text-muted-foreground">{lang === "ar" ? "د.م" : "MAD"}</span></div>
         </div>
         <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
-        <button onClick={() => { setSelectedProduct(item.id); setOrderOpen(true); }} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-bold hover:bg-primary-glow transition-smooth">
+        <button onClick={() => { setSelectedProduct(item.id); setOrderOpen(true); }} className="w-full h-12 rounded-full bg-primary text-primary-foreground font-bold hover:bg-[#3A5333] transition-smooth">
           {t.products.orderBtn}
         </button>
       </div>
