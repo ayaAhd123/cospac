@@ -20,7 +20,7 @@ function pickOfferText(offer: FirebaseOffer, lang: "ar" | "fr", field: "title" |
 }
 
 export const Offer = () => {
-  const { t, lang, setOrderOpen } = useApp();
+  const { t, lang, goToProductsSection } = useApp();
   const [rows, setRows] = useState<Array<{ id: string; data: FirebaseOffer }>>([]);
   const { ref: secRef, visible } = useInViewAnimate<HTMLElement>();
 
@@ -78,7 +78,7 @@ export const Offer = () => {
                 </div>
               ) : null}
               <div className="md:col-span-2 flex flex-wrap justify-center gap-3">
-                <button type="button" onClick={() => setOrderOpen(true)} className="h-12 px-8 rounded-full bg-gold text-gold-foreground font-black shadow-gold hover:scale-105 transition-smooth">
+                <button type="button" onClick={goToProductsSection} className="h-12 px-8 rounded-full bg-gold text-gold-foreground font-black shadow-gold hover:scale-105 transition-smooth">
                   {t.offer.cta}
                 </button>
               </div>

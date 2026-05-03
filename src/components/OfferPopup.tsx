@@ -38,7 +38,7 @@ function pickOfferText(offer: FirebaseOffer, lang: "ar" | "fr", field: "title" |
 }
 
 export const OfferPopup = () => {
-  const { t, lang, setOrderOpen } = useApp();
+  const { t, lang, goToProductsSection } = useApp();
   const [offer, setOffer] = useState<FirebaseOffer | null>(null);
   const [open, setOpen] = useState(false);
 
@@ -82,7 +82,7 @@ export const OfferPopup = () => {
           <h3 className="whitespace-pre-line text-2xl font-display font-bold">{title}</h3>
           <p className="whitespace-pre-line text-sm text-muted-foreground leading-relaxed">{desc}</p>
           <div className="flex flex-col gap-2 pt-2">
-            <button type="button" className="h-12 rounded-full bg-primary text-primary-foreground font-bold" onClick={() => { setOrderOpen(true); close(); }}>
+            <button type="button" className="h-12 rounded-full bg-primary text-primary-foreground font-bold" onClick={() => { goToProductsSection(); close(); }}>
               {t.offer.popupCta}
             </button>
             <button type="button" className="text-xs text-muted-foreground underline-offset-2 hover:underline" onClick={close}>

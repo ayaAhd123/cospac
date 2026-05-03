@@ -5,7 +5,7 @@ import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export const FloatingButtons = () => {
-  const { t, lang, setOrderOpen } = useApp();
+  const { t, lang, goToProductsSection } = useApp();
   const { settings } = useSiteSettings();
   const wa = (settings.whatsappNumber ?? "212606068853").replace(/\D/g, "");
   const tel = settings.phoneNumber ?? "+212 606-068853";
@@ -53,7 +53,7 @@ export const FloatingButtons = () => {
         <div className="hidden md:block fixed bottom-6 end-6 z-40">
           <button
             type="button"
-            onClick={() => setOrderOpen(true)}
+            onClick={() => scrollToSection("products")}
             className="h-12 px-6 rounded-full bg-primary text-primary-foreground font-bold shadow-elegant hover:opacity-95 transition-smooth"
           >
             {t.sticky}
@@ -61,7 +61,7 @@ export const FloatingButtons = () => {
         </div>
       ) : null}
       <div className="md:hidden fixed bottom-0 inset-x-0 z-30 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-gradient-to-t from-background via-background to-transparent pt-8">
-        <button type="button" onClick={() => setOrderOpen(true)} className="w-full h-14 rounded-full bg-primary text-primary-foreground font-bold shadow-elegant">
+        <button type="button" onClick={goToProductsSection} className="w-full h-14 rounded-full bg-primary text-primary-foreground font-bold shadow-elegant">
           🛒 {t.sticky}
         </button>
       </div>

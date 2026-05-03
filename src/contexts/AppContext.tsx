@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, ReactNode } from "react";
 import { translations, Lang, type TranslationTree } from "@/i18n/translations";
+import { scrollToSection } from "@/lib/utils";
 
 const LANG_STORAGE_KEY = "cospac-lang";
 const THEME_STORAGE_KEY = "cospac-theme";
@@ -22,7 +23,9 @@ type Ctx = {
   selectedProduct: string | null;
   setSelectedProduct: (id: string | null) => void;
   orderOpen: boolean;
-  setOrderOpen: (b: boolean) => void;
+  closeOrderForm: () => void;
+  goToProductsSection: () => void;
+  openOrderFormForProduct: (productId: string) => void;
 };
 
 const AppCtx = createContext<Ctx | null>(null);
@@ -44,6 +47,22 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [orderOpen, setOrderOpen] = useState(false);
   const langRef = useRef(lang);
   langRef.current = lang;
+
+  const closeOrderForm = useCallback(() => {
+    setOrderOpen(false);
+    setSelectedProduct(null);
+  }, []);
+
+  const goToProductsSection = useCallback(() => {
+    setOrderOpen(false);
+    setSelectedProduct(null);
+    window.requestAnimationFrame(() => scrollToSection("products"));
+  }, []);
+
+  const openOrderFormForProduct = useCallback((productId: string) => {
+    setSelectedProduct(productId);
+    setOrderOpen(true);
+  }, []);
 
   const setLang = useCallback((newLang: Lang) => {
     if (newLang === langRef.current) return;
@@ -79,7 +98,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         selectedProduct,
         setSelectedProduct,
         orderOpen,
-        setOrderOpen,
+        closeOrderForm,
+        goToProductsSection,
+        openOrderFormForProduct,
       }}
     >
       {children}

@@ -8,7 +8,7 @@ import { usePublicProducts } from "@/hooks/usePublicProducts";
 import { sendOrderNotification } from "@/lib/orderNotification";
 
 export const OrderForm = () => {
-  const { t, orderOpen, setOrderOpen, selectedProduct, setSelectedProduct, lang } = useApp();
+  const { t, orderOpen, closeOrderForm, selectedProduct, setSelectedProduct, lang } = useApp();
   const { products } = usePublicProducts(lang, t.products.items);
   const [form, setForm] = useState({ name: "", phone: "", city: "", product: "", quantity: 1, notes: "" });
   const [sending, setSending] = useState(false);
@@ -65,8 +65,7 @@ export const OrderForm = () => {
       setDone(true);
       toast.success(t.form.success);
       setTimeout(() => {
-        setOrderOpen(false);
-        setSelectedProduct(null);
+        closeOrderForm();
         setForm({ name: "", phone: "", city: "", product: products[0]?.id ?? "", quantity: 1, notes: "" });
       }, 1800);
     } catch {
@@ -78,7 +77,7 @@ export const OrderForm = () => {
   return (
     <div
       className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-foreground/40 backdrop-blur-sm animate-fade-up motion-safe:animate-[fade-in_0.25s_ease-out]"
-      onClick={() => setOrderOpen(false)}
+      onClick={closeOrderForm}
     >
       <div
         className="bg-card w-full max-w-md max-h-[92vh] overflow-y-auto rounded-t-3xl md:rounded-3xl p-6 md:p-8 shadow-elegant relative motion-safe:animate-[fade-up_0.35s_ease-out]"
@@ -86,7 +85,7 @@ export const OrderForm = () => {
       >
         <button
           type="button"
-          onClick={() => setOrderOpen(false)}
+          onClick={closeOrderForm}
           className="absolute top-4 end-4 w-9 h-9 rounded-full bg-secondary flex items-center justify-center hover:bg-accent transition-smooth"
         >
           <X className="w-4 h-4" />

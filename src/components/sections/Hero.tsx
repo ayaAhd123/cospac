@@ -7,7 +7,7 @@ import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type TouchEventHandler } from "react";
 
 export const Hero = () => {
-  const { t, lang, setOrderOpen } = useApp();
+  const { t, lang, goToProductsSection } = useApp();
   const isRTL = lang === "ar";
   const reducedMotion =
     typeof window !== "undefined" &&
@@ -43,8 +43,7 @@ export const Hero = () => {
   const prev = () => setIdx((prev) => (prev - 1 + slides.length) % slides.length);
 
   const onOrderClick = () => {
-    scrollTo("products");
-    setOrderOpen(true);
+    goToProductsSection();
   };
 
   const onTouchStart: TouchEventHandler<HTMLElement> = (e) => {

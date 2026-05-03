@@ -6,7 +6,7 @@ import type { DisplayProduct } from "@/hooks/usePublicProducts";
 const fallbackImgs: Record<string, string> = { "dark-brown": dark, black };
 
 export const ProductCard = ({ item }: { item: DisplayProduct }) => {
-  const { t, setSelectedProduct, setOrderOpen, lang } = useApp();
+  const { t, openOrderFormForProduct, lang } = useApp();
   const img = item.imageUrl || fallbackImgs[item.id] || dark;
   const badge = item.badge?.trim();
 
@@ -37,10 +37,7 @@ export const ProductCard = ({ item }: { item: DisplayProduct }) => {
         </div>
         <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2 min-h-10">{item.desc}</p>
         <button
-          onClick={() => {
-            setSelectedProduct(item.id);
-            setOrderOpen(true);
-          }}
+          onClick={() => openOrderFormForProduct(item.id)}
           className="w-full h-11 md:h-12 rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 transition-smooth"
         >
           {t.products.orderBtn}

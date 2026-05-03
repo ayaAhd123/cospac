@@ -6,7 +6,7 @@ import { BeforeAfterSlider } from "@/components/BeforeAfterSlider";
 import type { FirebaseBeforeAfter } from "@/types/rtdb";
 
 export const BeforeAfter = () => {
-  const { t, lang, setOrderOpen } = useApp();
+  const { t, lang, goToProductsSection } = useApp();
   const [rows, setRows] = useState<Array<{ id: string; data: FirebaseBeforeAfter }>>([]);
   const [loading, setLoading] = useState(true);
 
@@ -50,7 +50,7 @@ export const BeforeAfter = () => {
         <p className="text-muted-foreground mb-5 max-w-2xl mx-auto">{t.beforeAfter.sub}</p>
         <button
           type="button"
-          onClick={() => setOrderOpen(true)}
+          onClick={goToProductsSection}
           className="mb-10 h-12 px-8 rounded-full bg-primary text-primary-foreground font-bold shadow-elegant hover:scale-[1.02] transition-smooth"
         >
           {t.hero.cta}

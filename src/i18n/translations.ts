@@ -43,7 +43,7 @@ const fr = {
   products: {
     title: "Nos Couleurs",
     sub: "Choisissez votre nuance idéale",
-    orderBtn: "Commander",
+    orderBtn: "Acheter des produits",
     loading: "Chargement…",
     items: [
       { id: "dark-brown", name: "Dark Brow Shampoo", desc: "Rich dark-brown shampoo color for natural-looking coverage and shine.", price: 129 },
@@ -256,7 +256,7 @@ const ar = {
   products: {
     title: "ألواننا",
     sub: "اختاري لونك المفضل",
-    orderBtn: "اطلب الآن",
+    orderBtn: "اشترِ المنتجات",
     loading: "جاري التحميل…",
     items: [
       { id: "dark-brown", name: "شامبو Dark Brow", desc: "لون بني داكن غني بمظهر طبيعي ولمعان واضح.", price: 129 },
