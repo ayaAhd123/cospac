@@ -1,37 +1,24 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { translations, Lang } from "@/data/translations";
-
-type T = (typeof translations)[Lang];
-type Theme = "light" | "dark";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, ReactNode } from "react";
+import { translations, Lang, type TranslationTree } from "@/i18n/translations";
 
 const LANG_STORAGE_KEY = "cospac-lang";
 const THEME_STORAGE_KEY = "cospac-theme";
 const DEFAULT_LANG: Lang = "ar";
-const DEFAULT_THEME: Theme = "light";
+const DEFAULT_THEME: "light" | "dark" = "light";
 
 const isLang = (value: string | null): value is Lang => value === "fr" || value === "ar";
-const isTheme = (value: string | null): value is Theme => value === "light" || value === "dark";
+const isTheme = (value: string | null): value is "light" | "dark" =>
+  value === "light" || value === "dark";
 
-export type Order = {
-  id: string;
-  name: string;
-  phone: string;
-  city: string;
-  product: string;
-  quantity: number;
-  status: "pending" | "confirmed" | "delivered";
-  createdAt: string;
-};
+type Theme = "light" | "dark";
 
 type Ctx = {
   lang: Lang;
   setLang: (l: Lang) => void;
-  t: T;
+  langOpacity: number;
+  t: TranslationTree;
   theme: Theme;
   toggleTheme: () => void;
-  orders: Order[];
-  addOrder: (o: Omit<Order, "id" | "status" | "createdAt">) => void;
-  updateStatus: (id: string, s: Order["status"]) => void;
   selectedProduct: string | null;
   setSelectedProduct: (id: string | null) => void;
   orderOpen: boolean;
@@ -40,20 +27,34 @@ type Ctx = {
 
 const AppCtx = createContext<Ctx | null>(null);
 
+function readInitialTheme(): Theme {
+  const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+  if (isTheme(storedTheme)) return storedTheme;
+  if (typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches)
+    return "dark";
+  return DEFAULT_THEME;
+}
+
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [lang, setLangState] = useState<Lang>(() => {
     const storedLang = localStorage.getItem(LANG_STORAGE_KEY);
     return isLang(storedLang) ? storedLang : DEFAULT_LANG;
   });
-  const [theme, setTheme] = useState<Theme>(() => {
-    const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
-    return isTheme(storedTheme) ? storedTheme : DEFAULT_THEME;
-  });
-  const [orders, setOrders] = useState<Order[]>(() => {
-    try { return JSON.parse(localStorage.getItem("orders") || "[]"); } catch { return []; }
-  });
+  const [langOpacity, setLangOpacity] = useState(1);
+  const [theme, setTheme] = useState<Theme>(() => readInitialTheme());
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
   const [orderOpen, setOrderOpen] = useState(false);
+  const langRef = useRef(lang);
+  langRef.current = lang;
+
+  const setLang = useCallback((newLang: Lang) => {
+    if (newLang === langRef.current) return;
+    setLangOpacity(0);
+    window.setTimeout(() => {
+      setLangState(newLang);
+      window.requestAnimationFrame(() => setLangOpacity(1));
+    }, 200);
+  }, []);
 
   useEffect(() => {
     document.documentElement.lang = lang;
@@ -66,25 +67,23 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem(THEME_STORAGE_KEY, theme);
   }, [theme]);
 
-  useEffect(() => { localStorage.setItem("orders", JSON.stringify(orders)); }, [orders]);
-
-  const addOrder: Ctx["addOrder"] = (o) => {
-    setOrders((prev) => [
-      { ...o, id: crypto.randomUUID(), status: "pending", createdAt: new Date().toISOString() },
-      ...prev,
-    ]);
-  };
-  const updateStatus = (id: string, s: Order["status"]) =>
-    setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status: s } : o)));
   const t = translations[lang] ?? translations[DEFAULT_LANG];
 
   return (
-    <AppCtx.Provider value={{
-      lang, setLang: setLangState, t,
-      theme, toggleTheme: () => setTheme(theme === "light" ? "dark" : "light"),
-      orders, addOrder, updateStatus,
-      selectedProduct, setSelectedProduct, orderOpen, setOrderOpen,
-    }}>
+    <AppCtx.Provider
+      value={{
+        lang,
+        setLang,
+        langOpacity,
+        t,
+        theme,
+        toggleTheme: () => setTheme((th) => (th === "light" ? "dark" : "light")),
+        selectedProduct,
+        setSelectedProduct,
+        orderOpen,
+        setOrderOpen,
+      }}
+    >
       {children}
     </AppCtx.Provider>
   );
