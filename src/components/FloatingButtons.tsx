@@ -1,25 +1,67 @@
 import { Phone, MessageCircle } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export const FloatingButtons = () => {
-  const { t, lang } = useApp();
+  const { t, lang, setOrderOpen } = useApp();
   const { settings } = useSiteSettings();
   const wa = (settings.whatsappNumber ?? "212606068853").replace(/\D/g, "");
   const tel = settings.phoneNumber ?? "+212 606-068853";
   const telHref = tel.replace(/\s/g, "");
   const prefill = encodeURIComponent(t.floating.whatsappPrefill as string);
   const waHref = `https://wa.me/${wa}?text=${prefill}`;
-  const scrollToProducts = () => {
-    const products = document.getElementById("products");
-    if (products) products.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
+
+  const [showDesktopOrder, setShowDesktopOrder] = useState(false);
+
+  useEffect(() => {
+    const hero = document.getElementById("hero");
+    if (!hero) return;
+
+    const mq = window.matchMedia("(min-width: 768px)");
+    let obs: IntersectionObserver | null = null;
+
+    const sync = () => {
+      if (!mq.matches) {
+        setShowDesktopOrder(false);
+        obs?.disconnect();
+        obs = null;
+        return;
+      }
+      obs?.disconnect();
+      obs = new IntersectionObserver(
+        ([e]) => {
+          setShowDesktopOrder(!(e?.isIntersecting ?? true));
+        },
+        { threshold: 0.05, rootMargin: "0px 0px -8% 0px" },
+      );
+      obs.observe(hero);
+    };
+
+    sync();
+    mq.addEventListener("change", sync);
+    return () => {
+      mq.removeEventListener("change", sync);
+      obs?.disconnect();
+    };
+  }, []);
 
   return (
     <>
+      {showDesktopOrder ? (
+        <div className="hidden md:block fixed bottom-6 end-6 z-40">
+          <button
+            type="button"
+            onClick={() => setOrderOpen(true)}
+            className="h-12 px-6 rounded-full bg-primary text-primary-foreground font-bold shadow-elegant hover:opacity-95 transition-smooth"
+          >
+            {t.sticky}
+          </button>
+        </div>
+      ) : null}
       <div className="md:hidden fixed bottom-0 inset-x-0 z-30 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-gradient-to-t from-background via-background to-transparent pt-8">
-        <button type="button" onClick={scrollToProducts} className="w-full h-14 rounded-full bg-primary text-primary-foreground font-bold shadow-elegant">
+        <button type="button" onClick={() => setOrderOpen(true)} className="w-full h-14 rounded-full bg-primary text-primary-foreground font-bold shadow-elegant">
           🛒 {t.sticky}
         </button>
       </div>

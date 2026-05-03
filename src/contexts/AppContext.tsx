@@ -30,8 +30,6 @@ const AppCtx = createContext<Ctx | null>(null);
 function readInitialTheme(): Theme {
   const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
   if (isTheme(storedTheme)) return storedTheme;
-  if (typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches)
-    return "dark";
   return DEFAULT_THEME;
 }
 

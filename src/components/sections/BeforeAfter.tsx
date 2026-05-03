@@ -6,7 +6,7 @@ import { BeforeAfterSlider } from "@/components/BeforeAfterSlider";
 import type { FirebaseBeforeAfter } from "@/types/rtdb";
 
 export const BeforeAfter = () => {
-  const { t, lang } = useApp();
+  const { t, lang, setOrderOpen } = useApp();
   const [rows, setRows] = useState<Array<{ id: string; data: FirebaseBeforeAfter }>>([]);
   const [loading, setLoading] = useState(true);
 
@@ -47,7 +47,14 @@ export const BeforeAfter = () => {
     <section id="before-after" className="py-16 md:py-24 bg-gradient-soft">
       <div className="container mx-auto px-4 text-center">
         <h2 className="text-3xl md:text-5xl mb-2">{t.beforeAfter.title}</h2>
-        <p className="text-muted-foreground mb-10">{t.beforeAfter.sub}</p>
+        <p className="text-muted-foreground mb-5 max-w-2xl mx-auto">{t.beforeAfter.sub}</p>
+        <button
+          type="button"
+          onClick={() => setOrderOpen(true)}
+          className="mb-10 h-12 px-8 rounded-full bg-primary text-primary-foreground font-bold shadow-elegant hover:scale-[1.02] transition-smooth"
+        >
+          {t.hero.cta}
+        </button>
         <div
           className={`flex gap-6 max-w-6xl mx-auto pb-2 ${
             rows.length > 1

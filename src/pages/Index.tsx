@@ -23,13 +23,13 @@ const Index = () => {
         <main className="max-md:pb-32">
           <Hero />
           <VideoSection />
+          <BeforeAfter />
           <Benefits />
           <Ingredients />
           <UsageSteps />
           <Products />
-          <BeforeAfter />
-          <Testimonials />
           <Offer />
+          <Testimonials />
         </main>
         <Footer />
         <OfferPopup />

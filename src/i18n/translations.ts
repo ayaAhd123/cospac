@@ -8,6 +8,30 @@ const fr = {
     subtitle: "Des soins colorants enrichis en macadamia pour couvrir les cheveux blancs, nourrir la fibre et illuminer votre couleur en quelques minutes.",
     cta: "Commander maintenant",
     ctaSecondary: "Voir la vidéo",
+    slider: {
+      slides: [
+        {
+          badge: "✦ Édition Macadamia",
+          title: "Cheveux brillants dès la première utilisation",
+          subtitle: "Coloration naturelle sans ammoniaque en 10 min",
+        },
+        {
+          badge: "✦ Couverture totale",
+          title: "Votre teinte parfaite à chaque fois",
+          subtitle: "Brun foncé ou Noir naturel — choisissez votre teinte",
+        },
+        {
+          badge: "✦ Sans taches",
+          title: "Beauté naturelle en un geste",
+          subtitle: "Formule enrichie à l'huile de Macadamia nutritive",
+        },
+        {
+          badge: "✦ Routine COSPAC",
+          title: "Résultat salon depuis la maison",
+          subtitle: "Application rapide, couleur intense et cheveux nourris",
+        },
+      ],
+    },
     stats: [
       { num: "+10K", label: "Clientes satisfaites" },
       { num: "98%", label: "Taux de satisfaction" },
@@ -22,8 +46,8 @@ const fr = {
     orderBtn: "Commander",
     loading: "Chargement…",
     items: [
-      { id: "dark-brown", name: "Marron Foncé", desc: "Brun profond et brillant, idéal pour un look naturel et élégant.", price: 249 },
-      { id: "black", name: "Noir Intense", desc: "Noir riche et lumineux, couvre 100% des cheveux blancs.", price: 249 },
+      { id: "dark-brown", name: "Dark Brow Shampoo", desc: "Rich dark-brown shampoo color for natural-looking coverage and shine.", price: 129 },
+      { id: "black", name: "Dark Black Shampoo", desc: "Deep black shampoo color with full gray coverage and glossy finish.", price: 129 },
     ],
   },
   benefits: {
@@ -197,6 +221,30 @@ const ar = {
     subtitle: "عناية ملوّنة بزيت الماكاديميا لتغطية الشيب وتغذية الشعر ومنح لون مشرق خلال دقائق.",
     cta: "اطلب الآن",
     ctaSecondary: "شاهد الفيديو",
+    slider: {
+      slides: [
+        {
+          badge: "✦ إصدار الماكاداميا",
+          title: "شعر لامع من أول استعمال",
+          subtitle: "صبغة طبيعية بدون أمونياك في 10 دقائق",
+        },
+        {
+          badge: "✦ تغطية كاملة للشيب",
+          title: "لونك المثالي في كل مرة",
+          subtitle: "بني غامق أو أسود طبيعي — اختاري ما يناسبك",
+        },
+        {
+          badge: "✦ بدون بقع",
+          title: "جمال طبيعي بلمسة واحدة",
+          subtitle: "تركيبة غنية بزيت الماكاداميا المغذي",
+        },
+        {
+          badge: "✦ روتين COSPAC",
+          title: "نتيجة صالون من المنزل",
+          subtitle: "تطبيق سريع، لون قوي وشعر مغذى",
+        },
+      ],
+    },
     stats: [
       { num: "+10K", label: "عميلة سعيدة" },
       { num: "98%", label: "نسبة الرضا" },
@@ -211,8 +259,8 @@ const ar = {
     orderBtn: "اطلب الآن",
     loading: "جاري التحميل…",
     items: [
-      { id: "dark-brown", name: "بني داكن", desc: "بني عميق ولامع، مثالي لإطلالة طبيعية وأنيقة.", price: 249 },
-      { id: "black", name: "أسود فاحم", desc: "أسود غني ولامع، يغطي 100% من الشعر الأبيض.", price: 249 },
+      { id: "dark-brown", name: "شامبو Dark Brow", desc: "لون بني داكن غني بمظهر طبيعي ولمعان واضح.", price: 129 },
+      { id: "black", name: "شامبو Dark Black", desc: "لون أسود عميق مع تغطية كاملة للشيب ولمسة لامعة.", price: 129 },
     ],
   },
   benefits: {
