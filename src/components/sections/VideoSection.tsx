@@ -55,7 +55,7 @@ export const VideoSection = () => {
                 >
                   {data.videoUrl ? (
                     <video
-                      src={data.videoUrl}
+                      src={`${data.videoUrl}#t=0.001`}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       muted
                       playsInline
