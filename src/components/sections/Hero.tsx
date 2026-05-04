@@ -30,7 +30,7 @@ export const Hero = () => {
     if (reducedMotion || paused || slides.length <= 1) return;
     const timer = window.setInterval(() => {
       setIdx((prev) => (prev + 1) % slides.length);
-    }, 5000);
+    }, 10000);
     return () => window.clearInterval(timer);
   }, [paused, reducedMotion, slides.length]);
 
