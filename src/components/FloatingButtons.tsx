@@ -1,4 +1,4 @@
-import { Phone, MessageCircle } from "lucide-react";
+import { Phone, MessageCircle, Instagram } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
@@ -66,6 +66,15 @@ export const FloatingButtons = () => {
         </button>
       </div>
       <div className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] start-4 z-30 flex flex-col gap-2 md:bottom-6 md:start-auto md:end-4">
+        <a
+          href="https://www.instagram.com/cospac_maroc/?hl=fr"
+          aria-label="Instagram"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-[52px] h-[52px] rounded-full bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white flex items-center justify-center shadow-elegant hover:scale-110 transition-smooth"
+        >
+          <Instagram className="w-6 h-6" />
+        </a>
         <a
           href={waHref}
           aria-label={t.floating.whatsapp}
