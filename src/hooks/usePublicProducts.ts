@@ -63,6 +63,7 @@ export function usePublicProducts(lang: Lang, fallback: TranslationTree["product
           .map(([id, data]) => ({ id, data }))
           .filter(({ data }) => data.active !== false)
           .map(({ id, data }) => mapRow(id, data, lang));
+          
         setRows(list.length > 0 ? list : mapFallback(fallback));
         setLoading(false);
       },

@@ -14,8 +14,23 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 
 export const OrderForm = () => {
   const { t, orderOpen, closeOrderForm, selectedProduct, setSelectedProduct, lang } = useApp();
-  const { products } = usePublicProducts(lang, t.products.items);
-  const [form, setForm] = useState({ name: "", phone: "", city: "", product: "", quantity: 1, notes: "" });
+  const { products: fetchedProducts } = usePublicProducts(lang, t.products.items);
+
+  const products = useMemo(() => {
+    if (fetchedProducts.length >= 2) {
+      return [
+        ...fetchedProducts,
+        {
+          id: "pack-both",
+          name: lang === "ar" ? "باقة (أسود + بني)" : "Pack (Noir + Marron)",
+          desc: "",
+          price: 206,
+        },
+      ];
+    }
+    return fetchedProducts;
+  }, [fetchedProducts, lang]);
+  const [form, setForm] = useState({ name: "", phone: "", city: "", address: "", product: "", quantity: 1, notes: "" });
   const [cityOpen, setCityOpen] = useState(false);
   const [sending, setSending] = useState(false);
   const [done, setDone] = useState(false);
@@ -61,6 +76,7 @@ export const OrderForm = () => {
         name: form.name,
         phone: form.phone,
         city: form.city,
+        address: form.address,
         product: form.product,
         productLabel: product.name,
         quantity: form.quantity,
@@ -78,6 +94,7 @@ export const OrderForm = () => {
         name: orderData.name,
         phone: orderData.phone,
         city: orderData.city,
+        address: orderData.address,
         productLabel: orderData.productLabel ?? orderData.product,
         quantity: orderData.quantity,
         notes: orderData.notes ?? "",
@@ -92,9 +109,10 @@ export const OrderForm = () => {
       toast.success(t.form.success);
       setTimeout(() => {
         closeOrderForm();
-        setForm({ name: "", phone: "", city: "", product: products[0]?.id ?? "", quantity: 1, notes: "" });
+        setForm({ name: "", phone: "", city: "", address: "", product: products[0]?.id ?? "", quantity: 1, notes: "" });
       }, 1800);
-    } catch {
+    } catch (error) {
+      console.error("Form submission error:", error);
       setSending(false);
       toast.error(lang === "ar" ? "تعذر إرسال الطلب" : "Envoi impossible");
     }
@@ -106,7 +124,7 @@ export const OrderForm = () => {
       onClick={closeOrderForm}
     >
       <div
-        className="bg-card w-full max-w-md max-h-[92vh] overflow-y-auto rounded-t-3xl md:rounded-3xl p-6 md:p-8 shadow-elegant relative motion-safe:animate-[fade-up_0.35s_ease-out]"
+        className="bg-card w-full max-w-[24rem] max-h-[92vh] overflow-y-auto rounded-t-3xl md:rounded-3xl p-5 md:p-6 shadow-elegant relative motion-safe:animate-[fade-up_0.35s_ease-out]"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -136,7 +154,7 @@ export const OrderForm = () => {
               {t.form.deliveryBanner}
             </div>
 
-            <form onSubmit={submit} className="space-y-3">
+            <form onSubmit={submit} className="space-y-2.5">
               <Input label={t.form.name} value={form.name} onChange={(v) => setForm({ ...form, name: v })} required />
               <Input label={t.form.phone} value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} required type="tel" />
 
@@ -149,7 +167,7 @@ export const OrderForm = () => {
                       variant="outline"
                       role="combobox"
                       aria-expanded={cityOpen}
-                      className="h-12 w-full justify-between rounded-2xl border border-border bg-secondary px-4 font-normal hover:bg-secondary hover:text-foreground"
+                      className="h-11 w-full justify-between rounded-2xl border border-border bg-secondary px-4 font-normal hover:bg-secondary hover:text-foreground"
                     >
                       <span className={cn("truncate", !form.city && "text-muted-foreground")}>
                         {form.city || t.form.cityPlaceholder}
@@ -182,12 +200,14 @@ export const OrderForm = () => {
                 </Popover>
               </div>
 
+              <Input label={(t.form as any).address || (lang === "ar" ? "العنوان" : "Adresse")} value={form.address} onChange={(v) => setForm({ ...form, address: v })} required />
+
               <div>
                 <label className="text-xs font-semibold text-muted-foreground mb-1.5 block">{t.form.product}</label>
                 <select
                   value={form.product}
                   onChange={(e) => setForm({ ...form, product: e.target.value })}
-                  className="w-full h-12 px-4 rounded-2xl bg-secondary border border-transparent focus:border-primary focus:bg-card outline-none transition-smooth"
+                  className="w-full h-11 px-4 rounded-2xl bg-secondary border border-transparent focus:border-primary focus:bg-card outline-none transition-smooth"
                   required
                 >
                   {products.map((p) => (
@@ -199,7 +219,7 @@ export const OrderForm = () => {
               </div>
               <div>
                 <label className="text-xs font-semibold text-muted-foreground mb-1.5 block">{t.form.qty}</label>
-                <div className="flex items-center gap-3 h-12 px-2 rounded-2xl bg-secondary">
+                <div className="flex items-center gap-3 h-11 px-2 rounded-2xl bg-secondary">
                   <button
                     type="button"
                     onClick={() => setForm({ ...form, quantity: Math.max(1, form.quantity - 1) })}
@@ -222,8 +242,8 @@ export const OrderForm = () => {
                 <textarea
                   value={form.notes}
                   onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                  rows={3}
-                  className="w-full px-4 py-3 rounded-2xl bg-secondary border border-transparent focus:border-primary focus:bg-card outline-none transition-smooth resize-none"
+                  rows={2}
+                  className="w-full px-4 py-2.5 rounded-2xl bg-secondary border border-transparent focus:border-primary focus:bg-card outline-none transition-smooth resize-none"
                 />
               </div>
               <div className="space-y-2 pt-3 border-t border-border text-sm">
@@ -253,7 +273,7 @@ export const OrderForm = () => {
               <button
                 disabled={sending}
                 type="submit"
-                className="w-full h-14 rounded-full bg-primary text-primary-foreground font-bold shadow-elegant hover:scale-[1.02] transition-smooth disabled:opacity-60 inline-flex items-center justify-center gap-2"
+                className="w-full h-12 rounded-full bg-primary text-primary-foreground font-bold shadow-elegant hover:scale-[1.02] transition-smooth disabled:opacity-60 inline-flex items-center justify-center gap-2"
               >
                 {sending ? (
                   <>
@@ -291,7 +311,7 @@ const Input = ({
       required={required}
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full h-12 px-4 rounded-2xl bg-secondary border border-transparent focus:border-primary focus:bg-card outline-none transition-smooth"
+      className="w-full h-11 px-4 rounded-2xl bg-secondary border border-transparent focus:border-primary focus:bg-card outline-none transition-smooth"
     />
   </div>
 );

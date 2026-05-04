@@ -48,6 +48,7 @@ const fr = {
     items: [
       { id: "dark-brown", name: "Dark Brow Shampoo", desc: "Rich dark-brown shampoo color for natural-looking coverage and shine.", price: 129 },
       { id: "black", name: "Dark Black Shampoo", desc: "Deep black shampoo color with full gray coverage and glossy finish.", price: 129 },
+      { id: "pack-both", name: "Pack (Noir + Marron) -20%", desc: "Un de chaque pour profiter de l'offre et varier les plaisirs.", price: 206 },
     ],
   },
   benefits: {
@@ -142,6 +143,7 @@ const fr = {
     phone: "Téléphone",
     city: "Ville",
     cityPlaceholder: "Rechercher ou choisir une ville…",
+    address: "Adresse complète",
     cityEmpty: "Aucune ville ne correspond.",
     product: "Produit",
     qty: "Quantité",
@@ -281,6 +283,7 @@ const ar = {
     items: [
       { id: "dark-brown", name: "شامبو Dark Brow", desc: "لون بني داكن غني بمظهر طبيعي ولمعان واضح.", price: 129 },
       { id: "black", name: "شامبو Dark Black", desc: "لون أسود عميق مع تغطية كاملة للشيب ولمسة لامعة.", price: 129 },
+      { id: "pack-both", name: "باقة (أسود + بني) -20%", desc: "عبوة من كل لون للاستفادة من العرض.", price: 206 },
     ],
   },
   benefits: {
@@ -374,6 +377,7 @@ const ar = {
     phone: "رقم الهاتف",
     city: "المدينة",
     cityPlaceholder: "ابحثي أو اختاري المدينة…",
+    address: "العنوان الكامل",
     cityEmpty: "لا توجد مدينة مطابقة.",
     product: "المنتج",
     qty: "الكمية",

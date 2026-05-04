@@ -3,6 +3,7 @@ type OrderNotificationPayload = {
   name: string;
   phone: string;
   city: string;
+  address: string;
   productLabel: string;
   quantity: number;
   notes: string;
@@ -35,6 +36,7 @@ export async function sendOrderNotification(payload: OrderNotificationPayload): 
       customer_name: payload.name,
       customer_phone: payload.phone,
       city: payload.city,
+      address: payload.address,
       product: payload.productLabel,
       quantity: String(payload.quantity),
       notes: payload.notes || "-",
