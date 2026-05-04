@@ -7,6 +7,9 @@ type OrderNotificationPayload = {
   quantity: number;
   notes: string;
   createdAt: string;
+  deliveryFeeDh: number;
+  productsSubtotalDh: number;
+  orderTotalDh: number;
 };
 
 function hasEmailJsConfig() {
@@ -36,6 +39,9 @@ export async function sendOrderNotification(payload: OrderNotificationPayload): 
       quantity: String(payload.quantity),
       notes: payload.notes || "-",
       created_at: payload.createdAt,
+      delivery_fee: String(payload.deliveryFeeDh),
+      products_subtotal: String(payload.productsSubtotalDh),
+      order_total: String(payload.orderTotalDh),
     },
   };
 

@@ -1,0 +1,79 @@
+/** Canonical city label stored on orders; fee logic uses this exact string. */
+export const FREE_DELIVERY_CITY = "Tanger" as const;
+
+export const STANDARD_DELIVERY_FEE_DH = 20;
+
+const RAW = [
+  "Agadir",
+  "Al Hoceima",
+  "Asilah",
+  "Azrou",
+  "Ben Guerir",
+  "Beni Mellal",
+  "Berkane",
+  "Berrechid",
+  "Boujdour",
+  "Bouznika",
+  "Casablanca",
+  "Chefchaouen",
+  "Dakhla",
+  "Demnate",
+  "El Hajeb",
+  "El Jadida",
+  "Errachidia",
+  "Essaouira",
+  "Fes",
+  "Fnideq",
+  "Guelmim",
+  "Guercif",
+  "Ifrane",
+  "Imzouren",
+  "Jerada",
+  "Kenitra",
+  "Khemisset",
+  "Khenifra",
+  "Khouribga",
+  "Ksar El Kebir",
+  "Laayoune",
+  "Larache",
+  "Marrakech",
+  "Martil",
+  "Meknes",
+  "Midelt",
+  "Mohammedia",
+  "Nador",
+  "Ouarzazate",
+  "Ouezzane",
+  "Oujda",
+  "Rabat",
+  "Safi",
+  "Salé",
+  "Sefrou",
+  "Settat",
+  "Sidi Bennour",
+  "Sidi Ifni",
+  "Sidi Kacem",
+  "Sidi Slimane",
+  "Skhirat",
+  "Smara",
+  "Tanger",
+  "Tan-Tan",
+  "Taounate",
+  "Taourirt",
+  "Taroudant",
+  "Taza",
+  "Temara",
+  "Tetouan",
+  "Tinghir",
+  "Tiznit",
+  "Youssoufia",
+  "Zagora",
+] as const;
+
+export const MOROCCO_CITIES: readonly string[] = [...RAW].sort((a, b) => a.localeCompare(b, "fr"));
+
+export function getDeliveryFeeDh(city: string): number {
+  const c = city.trim();
+  if (!c) return 0;
+  return c === FREE_DELIVERY_CITY ? 0 : STANDARD_DELIVERY_FEE_DH;
+}

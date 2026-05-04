@@ -10,6 +10,12 @@ export type FirebaseOrder = {
   notes?: string;
   status: OrderStatus;
   createdAt: string;
+  /** Delivery fee in DH (0 for Tanger, 20 otherwise). */
+  deliveryFee?: number;
+  /** Product subtotal (unit price × qty) in DH. */
+  productsSubtotal?: number;
+  /** Grand total including delivery in DH. */
+  orderTotal?: number;
 };
 
 export type FirebaseProduct = {

@@ -61,13 +61,6 @@ const AdminVideos = () => {
     setOpen(false);
   };
 
-  const pickThumb = async (f: File | null) => {
-    if (!f) return;
-    cu.setFilePreview(f);
-    const url = await cu.upload(f);
-    setForm((p) => ({ ...p, thumbnailUrl: url }));
-  };
-
   const pickVideo = async (f: File | null) => {
     if (!f) return;
     setVideoUploadError(null);
@@ -181,19 +174,6 @@ const AdminVideos = () => {
                 </p>
               ) : null}
               {form.videoUrl ? <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{form.videoUrl}</p> : null}
-            </div>
-            <div>
-              <Label>{a.thumbnail}</Label>
-              <Input type="file" accept="image/*" capture="environment" className="mt-1" onChange={(e) => pickThumb(e.target.files?.[0] ?? null)} />
-              {cu.state.error ? <p className="text-xs text-destructive">{cu.state.error}</p> : null}
-              {(cu.state.previewUrl || form.thumbnailUrl) && (
-                <img src={cu.state.previewUrl ?? form.thumbnailUrl} alt="" className="mt-2 rounded-xl max-h-32 object-cover border" />
-              )}
-              {cu.state.uploading ? (
-                <p className="text-xs flex items-center gap-1 mt-1">
-                  <Loader2 className="w-3 h-3 animate-spin" /> …
-                </p>
-              ) : null}
             </div>
           </div>
           <DialogFooter>

@@ -113,12 +113,17 @@ export const Hero = () => {
             display: none;
           }
         }
+        @media (min-width: 768px) {
+          .hero-slide-0 {
+            background-position: left center !important;
+          }
+        }
       `}</style>
       <div className="absolute inset-0">
         {slides.map((slide, i) => (
           <div
             key={i}
-            className="hero-slide absolute inset-0"
+            className={`hero-slide absolute inset-0 hero-slide-${i}`}
             style={{
               opacity: i === idx ? 1 : 0,
               backgroundImage: `url("${slide.image}")`,
@@ -133,7 +138,7 @@ export const Hero = () => {
 
       <button
         type="button"
-        className="hero-mobile-hide absolute left-4 top-1/2 z-20 -translate-y-1/2 h-11 w-11 rounded-full border border-white/30 bg-white/15 text-white backdrop-blur-[4px] hover:bg-white/30 transition"
+        className="hero-mobile-hide absolute left-4 top-1/2 z-30 -translate-y-1/2 h-11 w-11 rounded-full border border-white/30 bg-white/15 text-white backdrop-blur-[4px] hover:bg-white/30 transition"
         onClick={prev}
         aria-label="Previous slide"
       >
@@ -141,7 +146,7 @@ export const Hero = () => {
       </button>
       <button
         type="button"
-        className="hero-mobile-hide absolute right-4 top-1/2 z-20 -translate-y-1/2 h-11 w-11 rounded-full border border-white/30 bg-white/15 text-white backdrop-blur-[4px] hover:bg-white/30 transition"
+        className="hero-mobile-hide absolute right-4 top-1/2 z-30 -translate-y-1/2 h-11 w-11 rounded-full border border-white/30 bg-white/15 text-white backdrop-blur-[4px] hover:bg-white/30 transition"
         onClick={next}
         aria-label="Next slide"
       >

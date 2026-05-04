@@ -47,13 +47,33 @@ const AdminOrders = () => {
   }, [rows, statusF, dateF, q]);
 
   const exportCsv = () => {
-    const cols = [a.orderCols.name, a.orderCols.phone, a.orderCols.city, a.orderCols.product, a.orderCols.qty, a.orderCols.notes, a.orderCols.date, a.orderCols.status];
+    const cols = [
+      a.orderCols.name,
+      a.orderCols.phone,
+      a.orderCols.city,
+      a.orderCols.product,
+      a.orderCols.qty,
+      a.orderCols.delivery,
+      a.orderCols.orderTotal,
+      a.orderCols.notes,
+      a.orderCols.date,
+      a.orderCols.status,
+    ];
     const lines = [
       cols.join(","),
       ...filtered.map(({ data }) =>
-        [data.name, data.phone, data.city, data.productLabel ?? data.product, data.quantity, (data.notes ?? "").replace(/,/g, ";"), data.createdAt, data.status ?? "pending"].join(
-          ",",
-        ),
+        [
+          data.name,
+          data.phone,
+          data.city,
+          data.productLabel ?? data.product,
+          data.quantity,
+          data.deliveryFee ?? "",
+          data.orderTotal ?? "",
+          (data.notes ?? "").replace(/,/g, ";"),
+          data.createdAt,
+          data.status ?? "pending",
+        ].join(","),
       ),
     ];
     const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
