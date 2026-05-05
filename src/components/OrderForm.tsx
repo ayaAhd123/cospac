@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { push, ref } from "firebase/database";
+import { push, ref, update } from "firebase/database";
 import { db } from "@/lib/firebase";
 import { useApp } from "@/contexts/AppContext";
 import { X, Check, Minus, Plus, Loader2, ChevronsUpDown } from "lucide-react";
@@ -11,6 +11,13 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  validateName,
+  validatePhone,
+  validateAddress,
+  sanitizeNotes,
+  checkRateLimit,
+} from "@/lib/validation";
 
 export const OrderForm = () => {
   const { t, orderOpen, closeOrderForm, selectedProduct, setSelectedProduct, lang } = useApp();
@@ -20,10 +27,12 @@ export const OrderForm = () => {
   const [cityOpen, setCityOpen] = useState(false);
   const [sending, setSending] = useState(false);
   const [done, setDone] = useState(false);
+  const [errors, setErrors] = useState<Partial<Record<"name" | "phone" | "address", string>>>({});
 
   useEffect(() => {
     if (orderOpen) {
       setDone(false);
+      setErrors({});
       setQuantities((prev) => {
         if (selectedProduct) {
           return { ...prev, [selectedProduct]: Math.max(1, prev[selectedProduct] || 1) };
@@ -55,6 +64,41 @@ export const OrderForm = () => {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // ── Rate limiting (15 s cool-down) ─────────────────────────
+    if (!checkRateLimit("orderForm", 15_000)) {
+      toast.error(lang === "ar" ? "يرجى الانتظار قبل إعادة الإرسال" : "Veuillez patienter avant de renvoyer.");
+      return;
+    }
+
+    // ── Field validation ────────────────────────────────────────
+    const newErrors: typeof errors = {};
+
+    if (!validateName(form.name)) {
+      newErrors.name =
+        lang === "ar"
+          ? "الاسم يجب أن يحتوي على أحرف فقط (لا أرقام أو رموز)"
+          : "Le nom ne doit contenir que des lettres.";
+    }
+    if (!validatePhone(form.phone)) {
+      newErrors.phone =
+        lang === "ar"
+          ? "رقم هاتف مغربي غير صالح (مثال: 0612345678)"
+          : "Numéro de téléphone marocain invalide (ex: 0612345678).";
+    }
+    if (!validateAddress(form.address)) {
+      newErrors.address =
+        lang === "ar"
+          ? "يرجى إدخال عنوان صحيح (6 أحرف على الأقل)"
+          : "Adresse invalide (6 caractères minimum).";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    setErrors({});
+
     if (selectedVariants.length === 0) {
       toast.error(lang === "ar" ? "يرجى اختيار منتج واحد على الأقل" : "Veuillez sélectionner au moins un produit.");
       return;
@@ -63,27 +107,46 @@ export const OrderForm = () => {
       toast.error(lang === "ar" ? "يرجى اختيار المدينة من القائمة" : "Veuillez sélectionner une ville dans la liste.");
       return;
     }
+
     setSending(true);
     try {
       const productIds = selectedVariants.map((p) => p.id).join(", ");
       const productLabels = selectedVariants.map((p) => `${p.name} (x${quantities[p.id]})`).join(" + ");
+      const cleanNotes = sanitizeNotes(form.notes);
 
       const orderData = {
-        name: form.name,
-        phone: form.phone,
+        // ── Core customer data ──────────────────────────────
+        name: form.name.trim(),
+        phone: form.phone.trim(),
         city: form.city,
-        address: form.address,
+        address: form.address.trim(),
         product: productIds,
         productLabel: productLabels,
         quantity: totalQuantity,
-        notes: form.notes || "",
+        notes: cleanNotes,
         status: "pending" as const,
         createdAt: new Date().toISOString(),
         deliveryFee: deliveryFeeDh,
-        productsSubtotal: productsSubtotal,
+        productsSubtotal,
         orderTotal: grandTotalDh,
+
+        // ── Cathedis delivery fields (auto-filled) ──────────
+        expediteur: "Cospac beauty",      // EXPÉDITEUR
+        expediteurPhone: form.phone.trim(), // TÉLÉPHONE (sender/user)
+        sector: "",                        // SECTEUR – admin fills post-export
+        declaredValue: grandTotalDh,       // VALEUR DÉCLARÉE
+        comment: cleanNotes,              // COMMENTAIRE
+        numColis: totalQuantity,           // NOMBRE DE COLIS
+        typePaiement: "ESPÈCES",          // TYPE DE PAIEMENT
+        // numCmd is patched below with the Firebase key
       };
+
       const orderRef = await push(ref(db, "orders"), orderData);
+
+      // Patch N° CMD with the Firebase-assigned key
+      if (orderRef.key) {
+        await update(ref(db, `orders/${orderRef.key}`), { numCmd: orderRef.key });
+      }
 
       void sendOrderNotification({
         orderId: orderRef.key ?? "",
@@ -114,6 +177,7 @@ export const OrderForm = () => {
       toast.error(lang === "ar" ? "تعذر إرسال الطلب" : "Envoi impossible");
     }
   };
+
 
   return (
     <div
@@ -152,8 +216,8 @@ export const OrderForm = () => {
             </div>
 
             <form onSubmit={submit} className="space-y-2.5">
-              <Input label={t.form.name} value={form.name} onChange={(v) => setForm({ ...form, name: v })} required />
-              <Input label={t.form.phone} value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} required type="tel" />
+              <Input label={t.form.name} value={form.name} onChange={(v) => setForm({ ...form, name: v })} required error={errors.name} />
+              <Input label={t.form.phone} value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} required type="tel" error={errors.phone} />
 
               <div>
                 <label className="text-xs font-semibold text-muted-foreground mb-1.5 block">{t.form.city}</label>
@@ -197,7 +261,7 @@ export const OrderForm = () => {
                 </Popover>
               </div>
 
-              <Input label={(t.form as any).address || (lang === "ar" ? "العنوان" : "Adresse")} value={form.address} onChange={(v) => setForm({ ...form, address: v })} required />
+              <Input label={(t.form as any).address || (lang === "ar" ? "العنوان" : "Adresse")} value={form.address} onChange={(v) => setForm({ ...form, address: v })} required error={errors.address} />
 
               <div>
                 <label className="text-xs font-semibold text-muted-foreground mb-3 block">{t.form.product}</label>
@@ -291,12 +355,14 @@ const Input = ({
   onChange,
   type = "text",
   required,
+  error,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   type?: string;
   required?: boolean;
+  error?: string;
 }) => (
   <div>
     <label className="text-xs font-semibold text-muted-foreground mb-1.5 block">{label}</label>
@@ -305,7 +371,15 @@ const Input = ({
       required={required}
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full h-11 px-4 rounded-2xl bg-secondary border border-transparent focus:border-primary focus:bg-card outline-none transition-smooth"
+      aria-invalid={!!error}
+      className={`w-full h-11 px-4 rounded-2xl bg-secondary border focus:bg-card outline-none transition-smooth ${
+        error ? "border-destructive" : "border-transparent focus:border-primary"
+      }`}
     />
+    {error && (
+      <p role="alert" className="mt-1 text-xs text-destructive font-medium">
+        {error}
+      </p>
+    )}
   </div>
 );

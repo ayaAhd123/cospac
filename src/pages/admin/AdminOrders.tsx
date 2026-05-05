@@ -40,47 +40,67 @@ const AdminOrders = () => {
     return rows.filter(({ data }) => {
       if (statusF !== "all" && (data.status ?? "pending") !== statusF) return false;
       if (dateF && !data.createdAt?.startsWith(dateF)) return false;
-      const s = `${data.name} ${data.city} ${data.phone}`.toLowerCase();
+      const s = `${data.name} ${data.city} ${data.phone} ${data.address ?? ""}`.toLowerCase();
       if (q && !s.includes(q.toLowerCase())) return false;
       return true;
     });
   }, [rows, statusF, dateF, q]);
 
-  const exportCsv = () => {
-    const cols = [
-      a.orderCols.name,
-      a.orderCols.phone,
-      a.orderCols.city,
-      a.orderCols.product,
-      a.orderCols.qty,
-      a.orderCols.delivery,
-      a.orderCols.orderTotal,
-      a.orderCols.notes,
-      a.orderCols.date,
-      a.orderCols.status,
+  const escape = (v: string | number | undefined) => {
+    const s = String(v ?? "");
+    if (s.includes(",") || s.includes("\n") || s.includes('"')) {
+      return `"${s.replace(/"/g, '""')}"`;
+    }
+    return s;
+  };
+
+  /** Export in exact Cathedis delivery format. */
+  const exportCathedis = () => {
+    // Exact Cathedis column headers (do NOT rename — Cathedis parses by header)
+    const headers = [
+      "EXPÉDITEUR",
+      "TÉLÉPHONE",
+      "SECTEUR",
+      "NOM DU CLIENT",
+      "VILLE",
+      "ADRESSE",
+      "MONTANT",
+      "VALEUR DÉCLARÉE",
+      "COMMENTAIRE",
+      "MARCHANDISE",
+      "N° CMD",
+      "NOMBRE DE COLIS",
+      "TYPE DE PAIEMENT",
+      "FICHIERS ATTACHÉS",
+      "", // 15th column for 14th comma
     ];
-    const lines = [
-      cols.join(","),
-      ...filtered.map(({ data }) =>
-        [
-          data.name,
-          data.phone,
-          data.city,
-          data.productLabel ?? data.product,
-          data.quantity,
-          data.deliveryFee ?? "",
-          data.orderTotal ?? "",
-          (data.notes ?? "").replace(/,/g, ";"),
-          data.createdAt,
-          data.status ?? "pending",
-        ].join(","),
-      ),
-    ];
-    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+
+    const rows = filtered.map(({ id, data }) => [
+      escape(data.expediteur ?? "Cospac beauty"),            // 1: EXPÉDITEUR
+      escape(data.phone),                                     // 2: TÉLÉPHONE
+      "",                                                     // 3: SECTEUR (Always empty)
+      escape(data.name),                                      // 4: NOM DU CLIENT
+      escape(data.city),                                      // 5: VILLE
+      escape(data.address ?? ""),                             // 6: ADRESSE
+      escape(data.orderTotal ?? ""),                          // 7: MONTANT
+      "",                                                     // 8: VALEUR DÉCLARÉE (Always empty)
+      "",                                                     // 9: COMMENTAIRE (Always empty)
+      escape(data.productLabel ?? data.product),              // 10: MARCHANDISE
+      escape(data.numCmd ?? id),                              // 11: N° CMD
+      escape(data.numColis ?? data.quantity),                 // 12: NOMBRE DE COLIS
+      escape(data.typePaiement ?? "ESPÈCES"),                 // 13: TYPE DE PAIEMENT
+      "",                                                     // 14: FICHIERS ATTACHÉS
+      "",                                                     // 15: Trailing comma column
+    ]);
+
+    // UTF-8 BOM so Excel opens with correct encoding
+    const BOM = "\uFEFF";
+    const lines = [headers.join(","), ...rows.map((r) => r.join(","))];
+    const blob = new Blob([BOM + lines.join("\n")], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `orders-${Date.now()}.csv`;
+    link.download = `cathedis-${Date.now()}.csv`;
     link.click();
     URL.revokeObjectURL(url);
   };
@@ -121,8 +141,8 @@ const AdminOrders = () => {
           <label className="text-xs text-muted-foreground">{a.search}</label>
           <Input value={q} onChange={(e) => setQ(e.target.value)} className="rounded-xl" />
         </div>
-        <Button type="button" variant="secondary" className="rounded-full" onClick={exportCsv}>
-          {a.exportCsv}
+        <Button type="button" variant="outline" className="rounded-full border-primary text-primary hover:bg-primary/10" onClick={exportCathedis}>
+          📦 Export Cathedis
         </Button>
       </div>
 
@@ -133,6 +153,7 @@ const AdminOrders = () => {
               <th className="text-start p-3">{a.orderCols.name}</th>
               <th className="text-start p-3">{a.orderCols.phone}</th>
               <th className="text-start p-3">{a.orderCols.city}</th>
+              <th className="text-start p-3">{a.orderCols.address}</th>
               <th className="text-start p-3">{a.orderCols.product}</th>
               <th className="text-start p-3">{a.orderCols.qty}</th>
               <th className="text-start p-3">{a.orderCols.notes}</th>
@@ -153,6 +174,7 @@ const AdminOrders = () => {
                     </a>
                   </td>
                   <td className="p-3 text-muted-foreground">{data.city}</td>
+                  <td className="p-3 max-w-[200px] truncate" title={data.address ?? ""}>{data.address ?? "—"}</td>
                   <td className="p-3">{data.productLabel ?? data.product}</td>
                   <td className="p-3 font-bold">{data.quantity}</td>
                   <td className="p-3 max-w-[180px] truncate" title={data.notes}>
