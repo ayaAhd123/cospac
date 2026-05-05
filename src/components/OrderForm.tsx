@@ -14,42 +14,32 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 
 export const OrderForm = () => {
   const { t, orderOpen, closeOrderForm, selectedProduct, setSelectedProduct, lang } = useApp();
-  const { products: fetchedProducts } = usePublicProducts(lang, t.products.items);
-
-  const products = useMemo(() => {
-    if (fetchedProducts.length >= 2) {
-      return [
-        ...fetchedProducts,
-        {
-          id: "pack-both",
-          name: lang === "ar" ? "باقة (أسود + بني)" : "Pack (Noir + Marron)",
-          desc: "",
-          price: 206,
-        },
-      ];
-    }
-    return fetchedProducts;
-  }, [fetchedProducts, lang]);
-  const [form, setForm] = useState({ name: "", phone: "", city: "", address: "", product: "", quantity: 1, notes: "" });
+  const { products } = usePublicProducts(lang, t.products.items);
+  const [form, setForm] = useState({ name: "", phone: "", city: "", address: "", notes: "" });
+  const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [cityOpen, setCityOpen] = useState(false);
   const [sending, setSending] = useState(false);
   const [done, setDone] = useState(false);
 
   useEffect(() => {
-    const first = products[0]?.id ?? "";
-    setForm((f) => ({ ...f, product: f.product || first }));
-  }, [products]);
+    if (orderOpen) {
+      setDone(false);
+      setQuantities((prev) => {
+        if (selectedProduct) {
+          return { ...prev, [selectedProduct]: Math.max(1, prev[selectedProduct] || 1) };
+        }
+        if (Object.keys(prev).length === 0 && products.length > 0) {
+          return { [products[0].id]: 1 };
+        }
+        return prev;
+      });
+    }
+  }, [orderOpen, selectedProduct, products]);
 
-  useEffect(() => {
-    if (selectedProduct) setForm((f) => ({ ...f, product: selectedProduct }));
-  }, [selectedProduct]);
+  const selectedVariants = products.filter((p) => (quantities[p.id] || 0) > 0);
+  const productsSubtotal = selectedVariants.reduce((sum, p) => sum + p.price * (quantities[p.id] || 0), 0);
+  const totalQuantity = selectedVariants.reduce((sum, p) => sum + (quantities[p.id] || 0), 0);
 
-  useEffect(() => {
-    if (!orderOpen) setDone(false);
-  }, [orderOpen]);
-
-  const product = products.find((p) => p.id === form.product) ?? products[0];
-  const productsSubtotal = (product?.price ?? 0) * form.quantity;
   const deliveryFeeDh = getDeliveryFeeDh(form.city);
   const grandTotalDh = productsSubtotal + deliveryFeeDh;
 
@@ -65,21 +55,27 @@ export const OrderForm = () => {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!product) return;
+    if (selectedVariants.length === 0) {
+      toast.error(lang === "ar" ? "يرجى اختيار منتج واحد على الأقل" : "Veuillez sélectionner au moins un produit.");
+      return;
+    }
     if (!form.city.trim() || !MOROCCO_CITIES.includes(form.city)) {
       toast.error(lang === "ar" ? "يرجى اختيار المدينة من القائمة" : "Veuillez sélectionner une ville dans la liste.");
       return;
     }
     setSending(true);
     try {
+      const productIds = selectedVariants.map((p) => p.id).join(", ");
+      const productLabels = selectedVariants.map((p) => `${p.name} (x${quantities[p.id]})`).join(" + ");
+
       const orderData = {
         name: form.name,
         phone: form.phone,
         city: form.city,
         address: form.address,
-        product: form.product,
-        productLabel: product.name,
-        quantity: form.quantity,
+        product: productIds,
+        productLabel: productLabels,
+        quantity: totalQuantity,
         notes: form.notes || "",
         status: "pending" as const,
         createdAt: new Date().toISOString(),
@@ -95,7 +91,7 @@ export const OrderForm = () => {
         phone: orderData.phone,
         city: orderData.city,
         address: orderData.address,
-        productLabel: orderData.productLabel ?? orderData.product,
+        productLabel: orderData.productLabel,
         quantity: orderData.quantity,
         notes: orderData.notes ?? "",
         createdAt: orderData.createdAt,
@@ -109,7 +105,8 @@ export const OrderForm = () => {
       toast.success(t.form.success);
       setTimeout(() => {
         closeOrderForm();
-        setForm({ name: "", phone: "", city: "", address: "", product: products[0]?.id ?? "", quantity: 1, notes: "" });
+        setForm({ name: "", phone: "", city: "", address: "", notes: "" });
+        setQuantities({});
       }, 1800);
     } catch (error) {
       console.error("Form submission error:", error);
@@ -203,38 +200,35 @@ export const OrderForm = () => {
               <Input label={(t.form as any).address || (lang === "ar" ? "العنوان" : "Adresse")} value={form.address} onChange={(v) => setForm({ ...form, address: v })} required />
 
               <div>
-                <label className="text-xs font-semibold text-muted-foreground mb-1.5 block">{t.form.product}</label>
-                <select
-                  value={form.product}
-                  onChange={(e) => setForm({ ...form, product: e.target.value })}
-                  className="w-full h-11 px-4 rounded-2xl bg-secondary border border-transparent focus:border-primary focus:bg-card outline-none transition-smooth"
-                  required
-                >
+                <label className="text-xs font-semibold text-muted-foreground mb-3 block">{t.form.product}</label>
+                <div className="space-y-2.5">
                   {products.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name}
-                    </option>
+                    <div key={p.id} className="flex items-center justify-between p-3 rounded-2xl bg-secondary border border-transparent">
+                      <div className="flex-1 font-medium text-sm text-foreground">
+                        {p.name}
+                        <div className="text-xs text-muted-foreground mt-0.5">
+                          {p.price} {currency}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 h-10 px-1 rounded-xl bg-card border border-border/50 shadow-sm" dir="ltr">
+                        <button
+                          type="button"
+                          onClick={() => setQuantities({ ...quantities, [p.id]: Math.max(0, (quantities[p.id] || 0) - 1) })}
+                          className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center hover:bg-muted transition-colors"
+                        >
+                          <Minus className="w-4 h-4" />
+                        </button>
+                        <div className="w-5 text-center font-bold text-sm">{quantities[p.id] || 0}</div>
+                        <button
+                          type="button"
+                          onClick={() => setQuantities({ ...quantities, [p.id]: (quantities[p.id] || 0) + 1 })}
+                          className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center hover:bg-muted transition-colors"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
                   ))}
-                </select>
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-muted-foreground mb-1.5 block">{t.form.qty}</label>
-                <div className="flex items-center gap-3 h-11 px-2 rounded-2xl bg-secondary">
-                  <button
-                    type="button"
-                    onClick={() => setForm({ ...form, quantity: Math.max(1, form.quantity - 1) })}
-                    className="w-9 h-9 rounded-full bg-card flex items-center justify-center"
-                  >
-                    <Minus className="w-4 h-4" />
-                  </button>
-                  <div className="flex-1 text-center font-bold">{form.quantity}</div>
-                  <button
-                    type="button"
-                    onClick={() => setForm({ ...form, quantity: form.quantity + 1 })}
-                    className="w-9 h-9 rounded-full bg-card flex items-center justify-center"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
                 </div>
               </div>
               <div>
