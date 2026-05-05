@@ -44,6 +44,21 @@ export async function sendOrderNotification(payload: OrderNotificationPayload): 
       delivery_fee: String(payload.deliveryFeeDh),
       products_subtotal: String(payload.productsSubtotalDh),
       order_total: String(payload.orderTotalDh),
+      dashboard_url: window.location.origin + "/admin/orders",
+      // Arabic translations for the template
+      notification_title: "إشعار بطلب جديد",
+      dashboard_message: "يرجى مراجعة لوحة التحكم لمزيد من التفاصيل.",
+      dashboard_link_text: "الذهاب إلى لوحة التحكم",
+      label_order_id: "رقم الطلب",
+      label_name: "اسم الزبون",
+      label_phone: "رقم الهاتف",
+      label_city: "المدينة",
+      label_address: "العنوان",
+      label_product: "المنتج",
+      label_quantity: "الكمية",
+      label_notes: "ملاحظات",
+      label_total: "المجموع الإجمالي",
+      label_date: "تاريخ الطلب",
     },
   };
 
