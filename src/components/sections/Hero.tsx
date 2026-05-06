@@ -1,7 +1,3 @@
-import heroBg from "@/assets/cospac-hero-bg.png";
-import heroBrown from "@/assets/hero-box-brown.png";
-import heroBlack from "@/assets/hero-box-black.png";
-import ingredientsPhoto from "@/assets/ingredients-photo.png";
 import { useApp } from "@/contexts/AppContext";
 import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type TouchEventHandler } from "react";
@@ -18,21 +14,19 @@ export const Hero = () => {
 
   const slides = useMemo(
     () => [
-      { image: heroBg, ...t.hero.slider.slides[0] },
-      { image: heroBrown, ...t.hero.slider.slides[1] },
-      { image: heroBlack, ...t.hero.slider.slides[2] },
-      { image: ingredientsPhoto, ...t.hero.slider.slides[3] },
+      { image: "/IMG_6138.PNG", ...t.hero.slider.slides[0] },
+      { image: "/WhatsApp Image 2026-05-06 at 21.48.40.jpeg", ...t.hero.slider.slides[1] },
     ],
     [t.hero.slider.slides],
   );
 
   useEffect(() => {
-    if (reducedMotion || paused || slides.length <= 1) return;
+    if (slides.length <= 1) return;
     const timer = window.setInterval(() => {
       setIdx((prev) => (prev + 1) % slides.length);
-    }, 10000);
+    }, 4000);
     return () => window.clearInterval(timer);
-  }, [paused, reducedMotion, slides.length]);
+  }, [slides.length]);
 
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
@@ -61,7 +55,7 @@ export const Hero = () => {
   return (
     <section
       id="hero"
-      className="relative h-[100svh] md:h-screen overflow-hidden"
+      className="relative h-[60svh] md:h-screen overflow-hidden"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onTouchStart={onTouchStart}
@@ -75,16 +69,16 @@ export const Hero = () => {
         .hero-overlay-rtl {
           background: linear-gradient(
             to left,
-            rgba(0,0,0,0.55) 0%,
-            rgba(0,0,0,0.2) 60%,
+            rgba(0,0,0,0.4) 0%,
+            rgba(0,0,0,0.1) 60%,
             rgba(0,0,0,0) 100%
           );
         }
         .hero-overlay-ltr {
           background: linear-gradient(
             to right,
-            rgba(0,0,0,0.55) 0%,
-            rgba(0,0,0,0.2) 60%,
+            rgba(0,0,0,0.4) 0%,
+            rgba(0,0,0,0.1) 60%,
             rgba(0,0,0,0) 100%
           );
         }
@@ -102,6 +96,18 @@ export const Hero = () => {
           animation: hero-text-in 0.7s ease-out both;
           animation-delay: 0.3s;
         }
+        .hero-btn-premium {
+          background: linear-gradient(180deg, #5D3A1A 0%, #3D2611 100%);
+          border: 2px solid #C9A84C;
+          color: #C9A84C;
+          font-weight: bold;
+          text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+          box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+        .hero-btn-premium:hover {
+          filter: brightness(1.2);
+          transform: translateY(-1px);
+        }
         @media (prefers-reduced-motion: reduce) {
           .hero-slide, .hero-text-anim {
             transition: none !important;
@@ -112,10 +118,16 @@ export const Hero = () => {
           .hero-mobile-hide {
             display: none;
           }
+          .hero-slide-0 {
+            background-position: 80% center !important;
+          }
+          .hero-slide-1 {
+            background-position: center !important;
+          }
         }
         @media (min-width: 768px) {
           .hero-slide-0 {
-            background-position: left center !important;
+            background-position: center !important;
           }
         }
       `}</style>
@@ -128,10 +140,10 @@ export const Hero = () => {
               opacity: i === idx ? 1 : 0,
               backgroundImage: `url("${slide.image}")`,
               backgroundSize: "cover",
-              backgroundPosition: "center",
+              backgroundPosition: i === 0 ? "80% center" : "center",
             }}
           >
-            <div className={`absolute inset-0 ${isRTL ? "hero-overlay-rtl" : "hero-overlay-ltr"}`} />
+            <div className={`absolute inset-0 ${isRTL ? "hero-overlay-rtl" : "hero-overlay-ltr"} bg-black/10`} />
           </div>
         ))}
       </div>
@@ -154,28 +166,38 @@ export const Hero = () => {
       </button>
 
       <div
-        className={`absolute z-20 inset-y-0 flex items-center ${isRTL ? "right-0 justify-end" : "left-0 justify-start"} w-full px-6 md:px-[60px]`}
+        className={`absolute z-20 inset-0 flex items-center ${idx === 0 ? (isRTL ? "justify-end" : "justify-start") : (isRTL ? "right-0 justify-end" : "left-0 justify-start")} w-full px-6 md:px-[80px]`}
       >
-        <div key={idx} className={`hero-text-anim max-w-[520px] ${isRTL ? "text-right" : "text-left"} max-md:text-center`}>
-          <span className="block mb-3 text-xs tracking-[2px] uppercase text-[#C9A84C]">{slides[idx]?.badge}</span>
-          <h1 className="mb-4 font-display text-white text-[30px] md:text-[52px] leading-[1.2] font-bold [text-shadow:0_2px_20px_rgba(0,0,0,0.3)]">
-            {slides[idx]?.title}
-          </h1>
-          <p className="mb-8 text-[15px] leading-[1.6] text-white/80">{slides[idx]?.subtitle}</p>
+        <div key={idx} className={`hero-text-anim w-full md:max-w-[520px] ${idx === 0 ? "text-right" : (isRTL ? "text-right" : "text-left")} max-md:text-center`}>
+          {slides[idx]?.badge && (
+            <span className="block mb-2 text-sm md:text-base tracking-[1px] font-medium text-white/90">{slides[idx]?.badge}</span>
+          )}
+          {slides[idx]?.title && (
+            <h1 className="mb-4 font-display text-white text-[28px] md:text-[56px] leading-[1.1] font-bold [text-shadow:0_2px_15px_rgba(0,0,0,0.5)] whitespace-pre-line">
+              {slides[idx]?.title}
+            </h1>
+          )}
+          
+          {idx === 0 && <div className="w-full h-[1px] bg-gradient-to-l from-[#C9A84C]/80 via-[#C9A84C]/20 to-transparent mb-6 max-md:mx-auto max-md:w-2/3" />}
+
+          {slides[idx]?.subtitle && (
+            <p className="mb-8 text-[14px] md:text-[18px] leading-[1.6] text-white/90 font-medium">{slides[idx]?.subtitle}</p>
+          )}
+          
           <div className={`flex gap-3 max-md:flex-col ${isRTL ? "md:flex-row-reverse" : ""}`}>
             <button
               type="button"
               onClick={onOrderClick}
-              className="px-8 py-[13px] rounded text-sm bg-[#2C4A2E] text-[#F5F0E8] hover:bg-[#1a2e1c] transition"
+              className={`px-8 md:px-10 py-[12px] md:py-[15px] rounded-full text-sm md:text-base transition-all duration-300 ${idx === 0 ? "hero-btn-premium" : "bg-[#2C4A2E] text-white hover:bg-[#1a2e1c]"}`}
             >
               {t.hero.cta}
             </button>
             <button
               type="button"
               onClick={() => scrollTo("video")}
-              className="px-7 py-[13px] rounded text-sm border border-white/60 text-white bg-transparent hover:bg-white/10 transition inline-flex items-center justify-center gap-2"
+              className="px-6 md:px-8 py-[12px] md:py-[15px] rounded-full text-sm md:text-base border border-white/40 text-white bg-white/10 backdrop-blur-md hover:bg-white/20 transition-all inline-flex items-center justify-center gap-2"
             >
-              <Play className="h-4 w-4" />
+              <Play className="h-4 w-4 fill-current" />
               {t.hero.ctaSecondary}
             </button>
           </div>

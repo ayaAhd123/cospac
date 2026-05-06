@@ -11,24 +11,14 @@ const fr = {
     slider: {
       slides: [
         {
+          badge: "Découvrez la force de la nature",
+          title: "Couverture totale des cheveux blancs\navec une touche de luxe",
+          subtitle: "Huile de Macadamia originale, pour des cheveux brillants et sains",
+        },
+        {
           badge: "",
-          title: "Cheveux brillants dès la première utilisation",
-          subtitle: "Coloration naturelle sans ammoniaque en 10 min",
-        },
-        {
-          badge: "✦ Couverture totale",
-          title: "Votre teinte parfaite à chaque fois",
-          subtitle: "Brun foncé ou Noir naturel — choisissez votre teinte",
-        },
-        {
-          badge: "✦ Sans taches",
-          title: "Beauté naturelle en un geste",
-          subtitle: "Formule enrichie à l'huile de Macadamia nutritive",
-        },
-        {
-          badge: "✦ Routine COSPAC",
-          title: "Résultat salon depuis la maison",
-          subtitle: "Application rapide, couleur intense et cheveux nourris",
+          title: "",
+          subtitle: "",
         },
       ],
     },
@@ -242,29 +232,19 @@ const ar = {
     badge: "روتين الإشراقة · مجموعة COSPAC",
     title: "شعر لامع من أول استعمال",
     subtitle: "عناية ملوّنة بزيت الماكاديميا لتغطية الشيب وتغذية الشعر ومنح لون مشرق خلال دقائق.",
-    cta: "اطلب الآن",
+    cta: "تسوقوا الآن",
     ctaSecondary: "شاهد الفيديو",
     slider: {
       slides: [
         {
+          badge: "اكتشفوا قوة الطبيعة",
+          title: "تغطية كاملة للشيب بلمسة\nبلمسة من الفخامة",
+          subtitle: "زيت الماكاديميا الأصلي، شعر لامع وصحي",
+        },
+        {
           badge: "",
-          title: "شعر لامع من أول استعمال",
-          subtitle: "صبغة طبيعية بدون أمونياك في 10 دقائق",
-        },
-        {
-          badge: "✦ تغطية كاملة للشيب",
-          title: "لونك المثالي في كل مرة",
-          subtitle: "بني غامق أو أسود طبيعي — اختاري ما يناسبك",
-        },
-        {
-          badge: "✦ بدون بقع",
-          title: "جمال طبيعي بلمسة واحدة",
-          subtitle: "تركيبة غنية بزيت الماكاداميا المغذي",
-        },
-        {
-          badge: "✦ روتين COSPAC",
-          title: "نتيجة صالون من المنزل",
-          subtitle: "تطبيق سريع، لون قوي وشعر مغذى",
+          title: "",
+          subtitle: "",
         },
       ],
     },
