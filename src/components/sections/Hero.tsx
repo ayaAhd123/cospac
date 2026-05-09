@@ -10,14 +10,28 @@ export const Hero = () => {
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const [idx, setIdx] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const touchStartX = useRef<number | null>(null);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const slides = useMemo(
     () => [
-      { image: "/IMG_6138.PNG", ...t.hero.slider.slides[0] },
-      { image: "/WhatsApp Image 2026-05-06 at 21.48.40.jpeg", ...t.hero.slider.slides[1] },
+      { 
+        image: isMobile ? "/hero_mobile_1.jpg" : "/IMG_6138.PNG", 
+        ...t.hero.slider.slides[0] 
+      },
+      { 
+        image: isMobile ? "/hero_mobile_2.jpg" : "/WhatsApp Image 2026-05-06 at 21.48.40.jpeg", 
+        ...t.hero.slider.slides[1] 
+      },
     ],
-    [t.hero.slider.slides],
+    [t.hero.slider.slides, isMobile],
   );
 
   useEffect(() => {
@@ -140,7 +154,7 @@ export const Hero = () => {
               opacity: i === idx ? 1 : 0,
               backgroundImage: `url("${slide.image}")`,
               backgroundSize: "cover",
-              backgroundPosition: i === 0 ? "80% center" : "center",
+              backgroundPosition: "center",
             }}
           >
             <div className={`absolute inset-0 ${isRTL ? "hero-overlay-rtl" : "hero-overlay-ltr"} bg-black/10`} />

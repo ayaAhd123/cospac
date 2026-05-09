@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
+import { Download } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type Row = { id: string; data: FirebaseOrder };
 
@@ -19,6 +21,7 @@ const AdminOrders = () => {
   const [q, setQ] = useState("");
   const [dateF, setDateF] = useState("");
   const [delId, setDelId] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     const r = ref(db, "orders");
@@ -105,8 +108,7 @@ const AdminOrders = () => {
     URL.revokeObjectURL(url);
   };
 
-  const toggleStatus = async (id: string, cur: OrderStatus) => {
-    const next: OrderStatus = cur === "pending" ? "validated" : "pending";
+  const updateStatus = async (id: string, next: OrderStatus) => {
     await update(ref(db, `orders/${id}`), { status: next });
   };
 
@@ -123,13 +125,14 @@ const AdminOrders = () => {
         <div className="space-y-1">
           <label className="text-xs text-muted-foreground">{a.filterStatus}</label>
           <Select value={statusF} onValueChange={setStatusF}>
-            <SelectTrigger className="w-44 rounded-xl">
+            <SelectTrigger className="w-44 rounded-full bg-secondary/50 border-border/50 hover:bg-secondary transition-colors">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">—</SelectItem>
               <SelectItem value="pending">{a.statusPending}</SelectItem>
-              <SelectItem value="validated">{a.statusValidated}</SelectItem>
+              <SelectItem value="shipping">{a.statusShipping}</SelectItem>
+              <SelectItem value="delivered">{a.statusDelivered}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -141,7 +144,8 @@ const AdminOrders = () => {
           <label className="text-xs text-muted-foreground">{a.search}</label>
           <Input value={q} onChange={(e) => setQ(e.target.value)} className="rounded-xl" />
         </div>
-        <Button type="button" variant="outline" className="rounded-full border-primary text-primary hover:bg-primary/10" onClick={exportCathedis}>
+        <Button type="button" variant="outline" className="rounded-full border-primary text-primary hover:bg-primary/10 gap-2" onClick={exportCathedis}>
+          <Download className="h-4 w-4" />
           📦 Export Cathedis
         </Button>
       </div>
@@ -164,7 +168,8 @@ const AdminOrders = () => {
           </thead>
           <tbody>
             {filtered.map(({ id, data }) => {
-              const st = data.status ?? "pending";
+              const rawStatus = data.status as string;
+              const st = (["pending", "shipping", "delivered"].includes(rawStatus) ? rawStatus : "pending") as OrderStatus;
               return (
                 <tr key={id} className="border-t border-border hover:bg-secondary/40">
                   <td className="p-3 font-semibold">{data.name}</td>
@@ -182,11 +187,23 @@ const AdminOrders = () => {
                   </td>
                   <td className="p-3 whitespace-nowrap text-muted-foreground">{data.createdAt?.slice(0, 16).replace("T", " ")}</td>
                   <td className="p-3">
-                    <button type="button" onClick={() => toggleStatus(id, st)}>
-                      <Badge variant={st === "validated" ? "default" : "secondary"} className="rounded-full cursor-pointer">
-                        {st === "validated" ? a.statusValidated : a.statusPending}
-                      </Badge>
-                    </button>
+                    <Select value={st} onValueChange={(val) => updateStatus(id, val as OrderStatus)}>
+                      <SelectTrigger 
+                        className={cn(
+                          "h-8 w-[140px] rounded-full text-[11px] font-black uppercase tracking-wider transition-all duration-200 shadow-sm border",
+                          st === "pending" && "bg-amber-50 text-amber-700 border-amber-200/60 hover:bg-amber-100",
+                          st === "shipping" && "bg-sky-50 text-sky-700 border-sky-200/60 hover:bg-sky-100",
+                          st === "delivered" && "bg-emerald-50 text-emerald-700 border-emerald-200/60 hover:bg-emerald-100"
+                        )}
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-2xl">
+                        <SelectItem value="pending">{a.statusPending}</SelectItem>
+                        <SelectItem value="shipping">{a.statusShipping}</SelectItem>
+                        <SelectItem value="delivered">{a.statusDelivered}</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </td>
                   <td className="p-3">
                     <Button size="sm" variant="destructive" className="rounded-full" onClick={() => setDelId(id)}>

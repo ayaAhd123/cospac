@@ -1,4 +1,4 @@
-export type OrderStatus = "pending" | "validated";
+export type OrderStatus = "pending" | "shipping" | "delivered";
 
 export type FirebaseOrder = {
   // ── Core customer fields ─────────────────────────────────────

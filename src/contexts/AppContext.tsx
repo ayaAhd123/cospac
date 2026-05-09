@@ -22,9 +22,8 @@ type Ctx = {
   toggleTheme: () => void;
   selectedProduct: string | null;
   setSelectedProduct: (id: string | null) => void;
-  orderOpen: boolean;
-  closeOrderForm: () => void;
   goToProductsSection: () => void;
+  openOrderForm: () => void;
   openOrderFormForProduct: (productId: string) => void;
 };
 
@@ -57,6 +56,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setOrderOpen(false);
     setSelectedProduct(null);
     window.requestAnimationFrame(() => scrollToSection("products"));
+  }, []);
+
+  const openOrderForm = useCallback(() => {
+    setSelectedProduct(null);
+    setOrderOpen(true);
   }, []);
 
   const openOrderFormForProduct = useCallback((productId: string) => {
@@ -100,6 +104,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         orderOpen,
         closeOrderForm,
         goToProductsSection,
+        openOrderForm,
         openOrderFormForProduct,
       }}
     >
