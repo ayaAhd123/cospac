@@ -148,7 +148,7 @@ export const OrderForm = () => {
         await update(ref(db, `orders/${orderRef.key}`), { numCmd: orderRef.key });
       }
 
-      void sendOrderNotification({
+      sendOrderNotification({
         orderId: orderRef.key ?? "",
         name: orderData.name,
         phone: orderData.phone,
@@ -161,6 +161,8 @@ export const OrderForm = () => {
         deliveryFeeDh: orderData.deliveryFee,
         productsSubtotalDh: orderData.productsSubtotal,
         orderTotalDh: orderData.orderTotal,
+      }).catch(err => {
+        console.error("Failed to trigger email notification:", err);
       });
 
       setSending(false);

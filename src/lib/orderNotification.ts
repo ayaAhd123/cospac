@@ -70,6 +70,17 @@ export async function sendOrderNotification(payload: OrderNotificationPayload): 
     body: JSON.stringify(body),
   });
 
-  return res.ok;
+  if (!res.ok) {
+    const errorText = await res.text();
+    console.error("EmailJS Send Failed:", {
+      status: res.status,
+      statusText: res.statusText,
+      error: errorText
+    });
+    return false;
+  }
+
+  console.log("EmailJS Send Success!");
+  return true;
 }
 
