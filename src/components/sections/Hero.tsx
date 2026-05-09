@@ -51,7 +51,7 @@ export const Hero = () => {
   const prev = () => setIdx((prev) => (prev - 1 + slides.length) % slides.length);
 
   const onOrderClick = () => {
-    goToProductsSection();
+    openOrderForm();
   };
 
   const onTouchStart: TouchEventHandler<HTMLElement> = (e) => {
@@ -65,6 +65,8 @@ export const Hero = () => {
     else prev();
     touchStartX.current = null;
   };
+
+  const { openOrderForm } = useApp();
 
   return (
     <section
@@ -182,21 +184,23 @@ export const Hero = () => {
       <div
         className={`absolute z-20 inset-0 flex items-center ${idx === 0 ? (isRTL ? "justify-end" : "justify-start") : (isRTL ? "right-0 justify-end" : "left-0 justify-start")} w-full px-6 md:px-[80px]`}
       >
-        <div key={idx} className={`hero-text-anim w-full md:max-w-[520px] ${idx === 0 ? "text-right" : (isRTL ? "text-right" : "text-left")} max-md:text-center`}>
-          {slides[idx]?.badge && (
-            <span className="block mb-2 text-sm md:text-base tracking-[1px] font-medium text-white/90">{slides[idx]?.badge}</span>
-          )}
-          {slides[idx]?.title && (
-            <h1 className="mb-4 font-display text-white text-[28px] md:text-[56px] leading-[1.1] font-bold [text-shadow:0_2px_15px_rgba(0,0,0,0.5)] whitespace-pre-line">
-              {slides[idx]?.title}
-            </h1>
-          )}
-          
-          {idx === 0 && <div className="w-full h-[1px] bg-gradient-to-l from-[#C9A84C]/80 via-[#C9A84C]/20 to-transparent mb-6 max-md:mx-auto max-md:w-2/3" />}
+        <div className={`w-full md:max-w-[520px] ${idx === 0 ? "text-right" : (isRTL ? "text-right" : "text-left")} max-md:text-center`}>
+          <div key={idx} className="hero-text-anim">
+            {slides[idx]?.badge && (
+              <span className="block mb-2 text-sm md:text-base tracking-[1px] font-medium text-white/90">{slides[idx]?.badge}</span>
+            )}
+            {slides[idx]?.title && (
+              <h1 className="mb-4 font-display text-white text-[28px] md:text-[56px] leading-[1.1] font-bold [text-shadow:0_2px_15px_rgba(0,0,0,0.5)] whitespace-pre-line">
+                {slides[idx]?.title}
+              </h1>
+            )}
+            
+            {idx === 0 && <div className="w-full h-[1px] bg-gradient-to-l from-[#C9A84C]/80 via-[#C9A84C]/20 to-transparent mb-6 max-md:mx-auto max-md:w-2/3" />}
 
-          {slides[idx]?.subtitle && (
-            <p className="mb-8 text-[14px] md:text-[18px] leading-[1.6] text-white/90 font-medium">{slides[idx]?.subtitle}</p>
-          )}
+            {slides[idx]?.subtitle && (
+              <p className="mb-8 text-[14px] md:text-[18px] leading-[1.6] text-white/90 font-medium">{slides[idx]?.subtitle}</p>
+            )}
+          </div>
           
           <div className={`flex gap-3 max-md:flex-col ${isRTL ? "md:flex-row-reverse" : ""}`}>
             <button
