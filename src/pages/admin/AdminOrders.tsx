@@ -161,6 +161,8 @@ const AdminOrders = () => {
               <th className="text-start p-3">{a.orderCols.product}</th>
               <th className="text-start p-3">{a.orderCols.qty}</th>
               <th className="text-start p-3">{a.orderCols.notes}</th>
+              <th className="text-start p-3">{a.orderCols.delivery}</th>
+              <th className="text-start p-3">{a.orderCols.orderTotal}</th>
               <th className="text-start p-3">{a.orderCols.date}</th>
               <th className="text-start p-3">{a.orderCols.status}</th>
               <th className="text-start p-3">{a.orderCols.actions}</th>
@@ -185,6 +187,8 @@ const AdminOrders = () => {
                   <td className="p-3 max-w-[180px] truncate" title={data.notes}>
                     {data.notes}
                   </td>
+                  <td className="p-3 font-medium">{data.deliveryFee ?? 0}</td>
+                  <td className="p-3 font-black text-primary">{data.orderTotal ?? 0}</td>
                   <td className="p-3 whitespace-nowrap text-muted-foreground">{data.createdAt?.slice(0, 16).replace("T", " ")}</td>
                   <td className="p-3">
                     <Select value={st} onValueChange={(val) => updateStatus(id, val as OrderStatus)}>
