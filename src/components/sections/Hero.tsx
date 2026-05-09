@@ -1,6 +1,7 @@
 import { useApp } from "@/contexts/AppContext";
 import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type TouchEventHandler } from "react";
+import { cn } from "@/lib/utils";
 
 export const Hero = () => {
   const { t, lang, goToProductsSection } = useApp();
