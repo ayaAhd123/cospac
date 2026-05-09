@@ -184,29 +184,27 @@ export const Hero = () => {
       <div
         className={`absolute z-20 inset-0 flex items-center ${idx === 0 ? (isRTL ? "justify-end" : "justify-start") : (isRTL ? "right-0 justify-end" : "left-0 justify-start")} w-full px-6 md:px-[80px]`}
       >
-        <div className={`w-full md:max-w-[520px] ${idx === 0 ? "text-right" : (isRTL ? "text-right" : "text-left")} max-md:text-center`}>
+        <div className={`w-full md:max-w-[520px] ${idx === 0 ? "text-right" : (isRTL ? "text-right" : "text-left")} max-md:text-center flex flex-col justify-end min-h-[220px] md:min-h-[340px]`}>
           <div key={idx} className="hero-text-anim">
-            {slides[idx]?.badge && (
-              <span className="block mb-2 text-sm md:text-base tracking-[1px] font-medium text-white/90">{slides[idx]?.badge}</span>
-            )}
-            {slides[idx]?.title && (
-              <h1 className="mb-4 font-display text-white text-[28px] md:text-[56px] leading-[1.1] font-bold [text-shadow:0_2px_15px_rgba(0,0,0,0.5)] whitespace-pre-line">
-                {slides[idx]?.title}
-              </h1>
-            )}
+            <span className={cn("block mb-2 text-sm md:text-base tracking-[1px] font-medium text-white/90 transition-opacity", !slides[idx]?.badge && "opacity-0")}>
+              {slides[idx]?.badge || "Placeholder"}
+            </span>
+            <h1 className={cn("mb-4 font-display text-white text-[28px] md:text-[56px] leading-[1.1] font-bold [text-shadow:0_2px_15px_rgba(0,0,0,0.5)] whitespace-pre-line transition-opacity", !slides[idx]?.title && "opacity-0")}>
+              {slides[idx]?.title || "Placeholder Title"}
+            </h1>
             
-            {idx === 0 && <div className="w-full h-[1px] bg-gradient-to-l from-[#C9A84C]/80 via-[#C9A84C]/20 to-transparent mb-6 max-md:mx-auto max-md:w-2/3" />}
+            <div className={cn("w-full h-[1px] bg-gradient-to-l from-[#C9A84C]/80 via-[#C9A84C]/20 to-transparent mb-6 max-md:mx-auto max-md:w-2/3 transition-opacity", idx !== 0 && "opacity-0")} />
 
-            {slides[idx]?.subtitle && (
-              <p className="mb-8 text-[14px] md:text-[18px] leading-[1.6] text-white/90 font-medium">{slides[idx]?.subtitle}</p>
-            )}
+            <p className={cn("mb-8 text-[14px] md:text-[18px] leading-[1.6] text-white/90 font-medium transition-opacity", !slides[idx]?.subtitle && "opacity-0")}>
+              {slides[idx]?.subtitle || "Placeholder Subtitle"}
+            </p>
           </div>
           
           <div className={`flex gap-3 max-md:flex-col ${isRTL ? "md:flex-row-reverse" : ""}`}>
             <button
               type="button"
               onClick={onOrderClick}
-              className={`px-8 md:px-10 py-[12px] md:py-[15px] rounded-full text-sm md:text-base transition-all duration-300 ${idx === 0 ? "hero-btn-premium" : "bg-[#2C4A2E] text-white hover:bg-[#1a2e1c]"}`}
+              className={`px-8 md:px-10 py-[12px] md:py-[15px] rounded-full text-sm md:text-base transition-all duration-300 border-2 ${idx === 0 ? "hero-btn-premium" : "bg-[#2C4A2E] text-white hover:bg-[#1a2e1c] border-transparent"}`}
             >
               {t.hero.cta}
             </button>
