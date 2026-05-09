@@ -183,9 +183,9 @@ export const Hero = () => {
       </button>
 
       <div
-        className={`absolute z-20 inset-0 flex items-center ${idx === 0 ? (isRTL ? "justify-end" : "justify-start") : (isRTL ? "right-0 justify-end" : "left-0 justify-start")} w-full px-6 md:px-[80px]`}
+        className={`absolute z-20 inset-0 flex items-center max-md:justify-center ${idx === 0 ? (isRTL ? "justify-end" : "justify-start") : (isRTL ? "right-0 justify-end" : "left-0 justify-start")} w-full px-6 md:px-[80px]`}
       >
-        <div className={`w-full md:max-w-[520px] ${idx === 0 ? "text-right" : (isRTL ? "text-right" : "text-left")} max-md:text-center flex flex-col justify-end min-h-[220px] md:min-h-[340px]`}>
+        <div className={`w-full md:max-w-[520px] ${idx === 0 ? "text-right" : (isRTL ? "text-right" : "text-left")} max-md:text-center flex flex-col justify-end min-h-[180px] md:min-h-[340px]`}>
           <div key={idx} className="hero-text-anim">
             <span className={cn("block mb-2 text-sm md:text-base tracking-[1px] font-medium text-white/90 transition-opacity", !slides[idx]?.badge && "opacity-0")}>
               {slides[idx]?.badge || "Placeholder"}
