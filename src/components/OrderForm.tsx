@@ -148,22 +148,27 @@ export const OrderForm = () => {
         await update(ref(db, `orders/${orderRef.key}`), { numCmd: orderRef.key });
       }
 
-      sendOrderNotification({
-        orderId: orderRef.key ?? "",
-        name: orderData.name,
-        phone: orderData.phone,
-        city: orderData.city,
-        address: orderData.address,
-        productLabel: orderData.productLabel,
-        quantity: orderData.quantity,
-        notes: orderData.notes ?? "",
-        createdAt: orderData.createdAt,
-        deliveryFeeDh: orderData.deliveryFee,
-        productsSubtotalDh: orderData.productsSubtotal,
-        orderTotalDh: orderData.orderTotal,
-      }).catch(err => {
-        console.error("Failed to trigger email notification:", err);
-      });
+      console.log("[OrderForm] Order created successfully. Triggering notification...");
+      
+      try {
+        await sendOrderNotification({
+          orderId: orderRef.key ?? "",
+          name: orderData.name,
+          phone: orderData.phone,
+          city: orderData.city,
+          address: orderData.address,
+          productLabel: orderData.productLabel,
+          quantity: orderData.quantity,
+          notes: orderData.notes ?? "",
+          createdAt: orderData.createdAt,
+          deliveryFeeDh: orderData.deliveryFee,
+          productsSubtotalDh: orderData.productsSubtotal,
+          orderTotalDh: orderData.orderTotal,
+        });
+        console.log("[OrderForm] Notification call completed.");
+      } catch (err) {
+        console.error("[OrderForm] Notification failed to execute:", err);
+      }
 
       setSending(false);
       setDone(true);
