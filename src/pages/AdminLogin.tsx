@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
 
 const AdminLogin = () => {
@@ -56,7 +57,7 @@ const AdminLogin = () => {
         <form onSubmit={submit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="pwd">{a.password}</Label>
-            <Input id="pwd" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required className="h-12 rounded-2xl" />
+            <PasswordInput id="pwd" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required className="h-12 rounded-2xl" />
           </div>
           <div className="flex items-center gap-2">
             <Checkbox id="rem" checked={remember} onCheckedChange={(c) => setRemember(c === true)} />

@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { get, onValue, ref, update } from "firebase/database";
-import { db } from "@/lib/firebase";
-import { useApp } from "@/contexts/AppContext";
+import { get, onValue, ref, update, set } from "firebase/database";
+import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "firebase/auth";
+import { db, auth } from "@/lib/firebase";
 import { verifyAdminPassword } from "@/lib/adminPassword";
+import { useApp } from "@/contexts/AppContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 
 const AdminSettings = () => {
@@ -35,27 +37,69 @@ const AdminSettings = () => {
 
   const savePassword = async () => {
     setMsg("");
-    if (p1.length < 4) {
-      setMsg(a.weakPassword);
+    if (p1.length < 6) {
+      setMsg(a.weakPassword || "Le mot de passe doit comporter au moins 6 caractères");
       return;
     }
     if (p1 !== p2) {
       setMsg(a.passMismatch);
       return;
     }
-    const ok = await verifyAdminPassword(cur);
-    if (!ok) {
-      setMsg(a.badPassword);
-      return;
+    
+    try {
+      const adminEmail = auth.currentUser?.email || ((import.meta.env.VITE_ADMIN_EMAIL as string | undefined) ?? "admin@cospac.com").trim();
+      
+      let authOk = false;
+      if (auth.currentUser && auth.currentUser.email) {
+        try {
+          const credential = EmailAuthProvider.credential(auth.currentUser.email, cur);
+          await reauthenticateWithCredential(auth.currentUser, credential);
+          authOk = true;
+        } catch (e) {
+          // Re-authentication failed
+        }
+      }
+
+      const dbOk = await verifyAdminPassword(cur);
+
+      if (!authOk && !dbOk) {
+        setMsg(a.badPassword);
+        return;
+      }
+      
+      console.log("AdminSettings: Attempting DB update. UID:", auth.currentUser?.uid);
+      await set(ref(db, "settings/adminPassword"), p1);
+
+      if (auth.currentUser) {
+        try {
+          await updatePassword(auth.currentUser, p1);
+        } catch (e: any) {
+          if (e.code === 'auth/requires-recent-login') {
+            console.warn("Could not update Auth password due to requires-recent-login, but DB updated.");
+          } else {
+            console.error("Firebase Auth update error:", e);
+          }
+        }
+      }
+      
+      setP1("");
+      setP2("");
+      setCur("");
+      setMsg(a.save);
+      window.setTimeout(() => setMsg(""), 2000);
+    } catch (error: any) {
+      console.error("Password update error:", error);
+      const errStr = String(error);
+      if (errStr.includes("PERMISSION_DENIED") || error.code === 'PERMISSION_DENIED') {
+        setMsg("ERREUR DE PERMISSION : Votre base de données Firebase bloque la modification du mot de passe. Vous devez changer les 'Rules' dans votre console Firebase.");
+      } else if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') {
+        setMsg(a.badPassword);
+      } else if (error.code === 'auth/requires-recent-login') {
+        setMsg("SÉCURITÉ : Veuillez vous déconnecter et vous reconnecter pour pouvoir changer le mot de passe.");
+      } else {
+        setMsg("Une erreur est survenue : " + (error.message || errStr));
+      }
     }
-    const base = await get(ref(db, "settings"));
-    const v = (base.val() as Record<string, unknown> | null) ?? {};
-    await update(ref(db, "settings"), { ...v, adminPassword: p1 });
-    setP1("");
-    setP2("");
-    setCur("");
-    setMsg(a.save);
-    window.setTimeout(() => setMsg(""), 2000);
   };
 
   return (
@@ -79,21 +123,21 @@ const AdminSettings = () => {
         <h2 className="font-semibold">{a.adminPass}</h2>
         <div>
           <Label>{a.oldPassword}</Label>
-          <Input type="password" value={cur} onChange={(e) => setCur(e.target.value)} className="rounded-xl mt-1" />
+          <PasswordInput value={cur} onChange={(e) => setCur(e.target.value)} className="rounded-xl mt-1" />
         </div>
         <div>
           <Label>{a.newPassword}</Label>
-          <Input type="password" value={p1} onChange={(e) => setP1(e.target.value)} className="rounded-xl mt-1" />
+          <PasswordInput value={p1} onChange={(e) => setP1(e.target.value)} className="rounded-xl mt-1" />
         </div>
         <div>
           <Label>{a.confirmPassword}</Label>
-          <Input type="password" value={p2} onChange={(e) => setP2(e.target.value)} className="rounded-xl mt-1" />
+          <PasswordInput value={p2} onChange={(e) => setP2(e.target.value)} className="rounded-xl mt-1" />
         </div>
-        <Button className="rounded-full" variant="secondary" onClick={savePassword}>
+        {msg ? <p className="text-sm text-destructive font-bold p-3 bg-destructive/10 rounded-xl">{msg}</p> : null}
+        <Button className="rounded-full w-full py-6 text-lg" variant="secondary" onClick={savePassword}>
           {a.save}
         </Button>
       </div>
-      {msg ? <p className="text-sm text-primary font-medium">{msg}</p> : null}
     </div>
   );
 };

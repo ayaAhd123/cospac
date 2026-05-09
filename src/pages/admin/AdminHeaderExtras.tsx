@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { get, ref, update } from "firebase/database";
-import { db } from "@/lib/firebase";
+import { get, ref, update, set } from "firebase/database";
+import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "firebase/auth";
+import { db, auth } from "@/lib/firebase";
 import { verifyAdminPassword } from "@/lib/adminPassword";
 import { useApp } from "@/contexts/AppContext";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 
 export function AdminHeaderExtras() {
@@ -20,8 +22,8 @@ export function AdminHeaderExtras() {
 
   const save = async () => {
     setErr("");
-    if (n1.length < 4) {
-      setErr(a.weakPassword);
+    if (n1.length < 6) {
+      setErr(a.weakPassword || "Le mot de passe doit comporter au moins 6 caractères");
       return;
     }
     if (n1 !== n2) {
@@ -30,21 +32,61 @@ export function AdminHeaderExtras() {
     }
     setLoading(true);
     try {
-      const ok = await verifyAdminPassword(oldP);
-      if (!ok) {
+      const adminEmail = auth.currentUser?.email || ((import.meta.env.VITE_ADMIN_EMAIL as string | undefined) ?? "admin@cospac.com").trim();
+      
+      let authOk = false;
+      if (auth.currentUser && auth.currentUser.email) {
+        try {
+          const credential = EmailAuthProvider.credential(auth.currentUser.email, oldP);
+          await reauthenticateWithCredential(auth.currentUser, credential);
+          authOk = true;
+        } catch (e) {
+          // Re-authentication failed, but we might still be logged in as the previous user.
+          // Or the password was just wrong for Auth.
+        }
+      }
+
+      const dbOk = await verifyAdminPassword(oldP);
+
+      if (!authOk && !dbOk) {
         setErr(a.badPassword);
         setLoading(false);
         return;
       }
-      const cur = await get(ref(db, "settings"));
-      const v = (cur.val() as Record<string, unknown> | null) ?? {};
-      await update(ref(db, "settings"), { ...v, adminPassword: n1 });
+      
+      console.log("Attempting DB update. Auth UID:", auth.currentUser?.uid);
+      console.log("AdminHeader: Attempting DB update. UID:", auth.currentUser?.uid);
+      await set(ref(db, "settings/adminPassword"), n1);
+
+      if (auth.currentUser) {
+        try {
+          await updatePassword(auth.currentUser, n1);
+        } catch (e: any) {
+          if (e.code === 'auth/requires-recent-login') {
+            console.warn("Could not update Auth password due to requires-recent-login, but DB updated.");
+            // Si on ne peut pas mettre à jour Firebase Auth car on n'a pas le vrai mot de passe Auth,
+            // on continue quand même car la DB a été mise à jour.
+          } else {
+            console.error("Firebase Auth update error:", e);
+          }
+        }
+      }
+      
       setOpen(false);
       setOldP("");
       setN1("");
       setN2("");
-    } catch {
-      setErr(a.badPassword);
+    } catch (error: any) {
+      console.error("Password update error:", error);
+      if (error.message?.includes("PERMISSION_DENIED")) {
+        setErr("Erreur de permission : Votre compte n'a pas les droits pour modifier la base de données.");
+      } else if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') {
+        setErr(a.badPassword);
+      } else if (error.code === 'auth/requires-recent-login') {
+        setErr("Sécurité : Veuillez vous déconnecter et vous reconnecter pour changer le mot de passe.");
+      } else {
+        setErr("Une erreur est survenue lors de la mise à jour.");
+      }
     }
     setLoading(false);
   };
@@ -62,15 +104,15 @@ export function AdminHeaderExtras() {
           <div className="space-y-3 py-2">
             <div>
               <Label>{a.oldPassword}</Label>
-              <Input type="password" value={oldP} onChange={(e) => setOldP(e.target.value)} className="rounded-xl mt-1" />
+              <PasswordInput value={oldP} onChange={(e) => setOldP(e.target.value)} className="rounded-xl mt-1" />
             </div>
             <div>
               <Label>{a.newPassword}</Label>
-              <Input type="password" value={n1} onChange={(e) => setN1(e.target.value)} className="rounded-xl mt-1" />
+              <PasswordInput value={n1} onChange={(e) => setN1(e.target.value)} className="rounded-xl mt-1" />
             </div>
             <div>
               <Label>{a.confirmPassword}</Label>
-              <Input type="password" value={n2} onChange={(e) => setN2(e.target.value)} className="rounded-xl mt-1" />
+              <PasswordInput value={n2} onChange={(e) => setN2(e.target.value)} className="rounded-xl mt-1" />
             </div>
             {err ? <p className="text-sm text-destructive">{err}</p> : null}
           </div>
