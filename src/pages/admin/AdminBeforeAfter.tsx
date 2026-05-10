@@ -153,7 +153,7 @@ const AdminBeforeAfter = () => {
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-lg rounded-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-lg rounded-3xl max-h-[90vh] overflow-y-auto" aria-describedby={undefined}>
           <DialogHeader>
             <DialogTitle>{editId ? a.edit : a.add}</DialogTitle>
           </DialogHeader>

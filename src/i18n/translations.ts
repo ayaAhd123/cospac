@@ -127,8 +127,7 @@ const fr = {
   form: {
     title: "Finalisez votre commande",
     sub: "Paiement à la livraison · Livraison 24-48h",
-    deliveryBanner:
-      "Livraison gratuite à Tanger · 20 DH pour toutes les autres villes",
+    deliveryBanner: "Livraison gratuite pour toutes les villes du Maroc",
     name: "Nom complet",
     phone: "Téléphone",
     city: "Ville",
@@ -354,7 +353,7 @@ const ar = {
   form: {
     title: "أكمل طلبك",
     sub: "الدفع عند الاستلام · التوصيل خلال 24-48 ساعة",
-    deliveryBanner: "توصيل مجاني في طنجة · 20 درهم لجميع المدن الأخرى",
+    deliveryBanner: "توصيل مجاني لجميع مدن المغرب",
     name: "الاسم الكامل",
     phone: "رقم الهاتف",
     city: "المدينة",

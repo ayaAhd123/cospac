@@ -4,7 +4,7 @@ import { db } from "@/lib/firebase";
 import { useApp } from "@/contexts/AppContext";
 import type { FirebaseOffer } from "@/types/rtdb";
 import { X } from "lucide-react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 
 const COOKIE = "cospac_offer_popup_dismiss";
 const DAY = 24 * 60 * 60 * 1000;
@@ -73,7 +73,8 @@ export const OfferPopup = () => {
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && close()}>
-      <DialogContent className="max-w-md rounded-3xl border-border bg-card p-0 overflow-hidden shadow-elegant">
+      <DialogContent className="max-w-md rounded-3xl border-border bg-card p-0 overflow-hidden shadow-elegant" aria-describedby={undefined}>
+        <DialogTitle className="sr-only">{title}</DialogTitle>
         <button type="button" className="absolute top-3 end-3 z-10 w-9 h-9 rounded-full bg-secondary flex items-center justify-center hover:bg-accent" onClick={close} aria-label={t.offer.popupClose}>
           <X className="w-4 h-4" />
         </button>

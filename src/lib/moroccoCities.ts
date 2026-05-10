@@ -73,7 +73,5 @@ const RAW = [
 export const MOROCCO_CITIES: readonly string[] = [...RAW].sort((a, b) => a.localeCompare(b, "fr"));
 
 export function getDeliveryFeeDh(city: string): number {
-  const c = city.trim();
-  if (!c) return 0;
-  return c === FREE_DELIVERY_CITY ? 0 : STANDARD_DELIVERY_FEE_DH;
+  return 0; // Free delivery for all cities in Morocco
 }

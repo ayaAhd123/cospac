@@ -6,7 +6,7 @@ import videoThumb from "@/assets/video-thumb.jpg";
 import { useApp } from "@/contexts/AppContext";
 import type { FirebaseVideo } from "@/types/rtdb";
 import { useInViewAnimate } from "@/hooks/useInViewAnimate";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 export const VideoSection = () => {
   const { t, lang } = useApp();
@@ -83,7 +83,8 @@ export const VideoSection = () => {
       </div>
 
       <Dialog open={!!active} onOpenChange={(o) => !o && setActive(null)}>
-        <DialogContent className="max-w-[95vw] max-h-[95vh] w-auto h-auto p-0 border-0 bg-transparent overflow-hidden rounded-2xl flex items-center justify-center shadow-none">
+        <DialogContent className="max-w-[95vw] max-h-[95vh] w-auto h-auto p-0 border-0 bg-transparent overflow-hidden rounded-2xl flex items-center justify-center shadow-none" aria-describedby={undefined}>
+          <DialogTitle className="sr-only">{active ? titleFor(active.data) : ""}</DialogTitle>
           {active?.data.videoUrl ? (
             <div className="relative w-full h-full flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-2xl overflow-hidden">
               <video

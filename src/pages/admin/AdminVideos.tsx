@@ -138,7 +138,7 @@ const AdminVideos = () => {
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-lg rounded-3xl">
+        <DialogContent className="max-w-lg rounded-3xl" aria-describedby={undefined}>
           <DialogHeader>
             <DialogTitle>{editId ? a.edit : a.add}</DialogTitle>
           </DialogHeader>

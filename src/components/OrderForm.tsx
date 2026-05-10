@@ -311,25 +311,9 @@ export const OrderForm = () => {
                   className="w-full px-4 py-2.5 rounded-2xl bg-secondary border border-transparent focus:border-primary focus:bg-card outline-none transition-smooth resize-none"
                 />
               </div>
-              <div className="space-y-2 pt-3 border-t border-border text-sm">
+              <div className="pt-4 border-t border-border">
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">{t.form.productsSubtotal}</span>
-                  <span className="font-semibold">
-                    {productsSubtotal.toFixed(2)} {currency}
-                  </span>
-                </div>
-                <div className={cn("flex items-center justify-between", deliveryRowClass)}>
-                  <span>{t.form.deliveryLabel}</span>
-                  <span className="font-semibold">
-                    {!form.city.trim()
-                      ? t.form.deliveryPending
-                      : deliveryFeeDh === 0
-                        ? t.form.deliveryFree
-                        : `20.00 ${currency}`}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between pt-2 border-t border-border">
-                  <span className="text-muted-foreground">{t.form.total}</span>
+                  <span className="text-muted-foreground font-medium">{t.form.total}</span>
                   <span className="text-2xl font-black text-primary">
                     {grandTotalDh.toFixed(2)} {currency}
                   </span>

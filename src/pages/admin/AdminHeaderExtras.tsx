@@ -97,7 +97,7 @@ export function AdminHeaderExtras() {
         {a.changePassword}
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="rounded-3xl max-w-md">
+        <DialogContent className="rounded-3xl max-w-md" aria-describedby={undefined}>
           <DialogHeader>
             <DialogTitle>{a.changePassword}</DialogTitle>
           </DialogHeader>
