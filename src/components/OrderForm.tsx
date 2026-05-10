@@ -150,6 +150,15 @@ export const OrderForm = () => {
 
       console.log("[OrderForm] Order created successfully. Triggering notification...");
       
+      // Track Purchase event with Meta Pixel
+      if (typeof window.fbq === 'function') {
+        window.fbq('track', 'Purchase', {
+          value: orderData.orderTotal,
+          currency: 'USD'
+        });
+      }
+
+      
       try {
         await sendOrderNotification({
           orderId: orderRef.key ?? "",
