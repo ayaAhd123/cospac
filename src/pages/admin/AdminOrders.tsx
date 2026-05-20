@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Download } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -22,6 +23,7 @@ const AdminOrders = () => {
   const [dateF, setDateF] = useState("");
   const [delId, setDelId] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<Row | null>(null);
 
   useEffect(() => {
     const r = ref(db, "orders");
@@ -120,7 +122,12 @@ const AdminOrders = () => {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold font-display">{a.orders}</h1>
+      <div className="flex items-center gap-3">
+        <h1 className="text-2xl font-bold font-display">{a.orders}</h1>
+        <Badge className="bg-primary/20 text-primary hover:bg-primary/30 text-sm">
+          إجمالي الطلبات: {rows.length}
+        </Badge>
+      </div>
       <div className="flex flex-wrap gap-2 items-end">
         <div className="space-y-1">
           <label className="text-xs text-muted-foreground">{a.filterStatus}</label>
@@ -173,10 +180,10 @@ const AdminOrders = () => {
               const rawStatus = data.status as string;
               const st = (["pending", "shipping", "delivered"].includes(rawStatus) ? rawStatus : "pending") as OrderStatus;
               return (
-                <tr key={id} className="border-t border-border hover:bg-secondary/40">
+                <tr key={id} className="border-t border-border hover:bg-secondary/40 cursor-pointer" onClick={() => setSelectedOrder({ id, data })}>
                   <td className="p-3 font-semibold">{data.name}</td>
                   <td className="p-3">
-                    <a href={`tel:${data.phone}`} className="text-primary hover:underline">
+                    <a href={`tel:${data.phone}`} className="text-primary hover:underline" onClick={(e) => e.stopPropagation()}>
                       {data.phone}
                     </a>
                   </td>
@@ -190,7 +197,7 @@ const AdminOrders = () => {
                   <td className="p-3 font-medium">{data.deliveryFee ?? 0}</td>
                   <td className="p-3 font-black text-primary">{data.orderTotal ?? 0}</td>
                   <td className="p-3 whitespace-nowrap text-muted-foreground">{data.createdAt?.slice(0, 16).replace("T", " ")}</td>
-                  <td className="p-3">
+                  <td className="p-3" onClick={(e) => e.stopPropagation()}>
                     <Select value={st} onValueChange={(val) => updateStatus(id, val as OrderStatus)}>
                       <SelectTrigger 
                         className={cn(
@@ -209,8 +216,11 @@ const AdminOrders = () => {
                       </SelectContent>
                     </Select>
                   </td>
-                  <td className="p-3">
-                    <Button size="sm" variant="destructive" className="rounded-full" onClick={() => setDelId(id)}>
+                  <td className="p-3" onClick={(e) => e.stopPropagation()}>
+                    <Button size="sm" variant="destructive" className="rounded-full" onClick={(e) => {
+                      e.stopPropagation();
+                      setDelId(id);
+                    }}>
                       {a.delete}
                     </Button>
                   </td>
@@ -236,6 +246,66 @@ const AdminOrders = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
+        <DialogContent className="rounded-3xl max-w-2xl max-h-[85vh] overflow-y-auto" dir={document.documentElement.dir || "rtl"}>
+          <DialogHeader>
+            <DialogTitle className="text-xl mb-4 text-start">تفاصيل الطلب: {selectedOrder?.data.name}</DialogTitle>
+          </DialogHeader>
+          {selectedOrder && (
+            <div className="grid gap-4 py-4 text-sm text-start">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h4 className="font-bold text-muted-foreground mb-1">{a.orderCols.name}</h4>
+                  <p className="font-medium text-base">{selectedOrder.data.name}</p>
+                </div>
+                <div>
+                  <h4 className="font-bold text-muted-foreground mb-1">{a.orderCols.phone}</h4>
+                  <p className="font-medium text-base text-primary" dir="ltr">{selectedOrder.data.phone}</p>
+                </div>
+                <div>
+                  <h4 className="font-bold text-muted-foreground mb-1">{a.orderCols.city}</h4>
+                  <p className="font-medium text-base">{selectedOrder.data.city}</p>
+                </div>
+                <div>
+                  <h4 className="font-bold text-muted-foreground mb-1">{a.orderCols.date}</h4>
+                  <p className="font-medium text-base" dir="ltr">{selectedOrder.data.createdAt?.slice(0, 16).replace("T", " ")}</p>
+                </div>
+              </div>
+              
+              <div className="border-t border-border pt-4">
+                <h4 className="font-bold text-muted-foreground mb-1">{a.orderCols.address}</h4>
+                <p className="font-medium text-base whitespace-pre-wrap leading-relaxed">{selectedOrder.data.address || "—"}</p>
+              </div>
+
+              <div className="border-t border-border pt-4">
+                <h4 className="font-bold text-muted-foreground mb-1">{a.orderCols.product}</h4>
+                <p className="font-medium text-base">{selectedOrder.data.productLabel || selectedOrder.data.product}</p>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4 border-t border-border pt-4">
+                <div>
+                  <h4 className="font-bold text-muted-foreground mb-1">{a.orderCols.qty}</h4>
+                  <p className="font-bold text-base">{selectedOrder.data.quantity}</p>
+                </div>
+                <div>
+                  <h4 className="font-bold text-muted-foreground mb-1">{a.orderCols.delivery}</h4>
+                  <p className="font-bold text-base">{selectedOrder.data.deliveryFee ?? 0} DH</p>
+                </div>
+                <div>
+                  <h4 className="font-bold text-muted-foreground mb-1">{a.orderCols.orderTotal}</h4>
+                  <p className="font-black text-primary text-base">{selectedOrder.data.orderTotal ?? 0} DH</p>
+                </div>
+              </div>
+
+              <div className="border-t border-border pt-4">
+                <h4 className="font-bold text-muted-foreground mb-1">{a.orderCols.notes}</h4>
+                <p className="font-medium text-base whitespace-pre-wrap leading-relaxed">{selectedOrder.data.notes || "—"}</p>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
